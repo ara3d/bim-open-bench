@@ -20,8 +20,8 @@ pasted into code. `lockup.svg` sets the mark beside the wordmark.
 
 Rules:
 
-- One colour: ochre (`#8f6214`) on a light surface; white on ochre or on a
-  dark surface. No gradients, no outline, no shadow.
+- One colour: graphite (`#3b3f47`) on a light surface; white on graphite
+  or on a dark surface. No gradients, no outline, no shadow.
 - Sizes: 16 px (favicon), 22 px (beside the wordmark), 48 px (a page
   heading), 96 px and up (papers, slides). Below 16 px use the start line
   and the three rows without the disc.
@@ -40,17 +40,20 @@ name, write the three words; `bim-open-bench` is a name for machines.
 
 | Token | Value | Use |
 |---|---|---|
-| Accent | `#8f6214` | The mark, links and buttons, bars in a results table |
-| Accent soft | `#f5ecdc` | Selected row and hover |
+| Accent | `#3b3f47` | The mark, links and buttons, bars in a results table |
+| Accent soft | `#ebebed` | Selected row and hover |
 | Text | `#171a1f` | Headings, body |
 | Dim | `#5a606c` | Secondary text, tool versions, run metadata, the "BIM Open" half of the wordmark |
 | Surface, background, border | `#ffffff`, `#f4f5f7`, `#e3e6ea` | As in the family guide |
 | Status | green `#16a34a`, amber `#d97706`, red `#dc2626` | A check that passed, a partial result, a failure |
 
-Ochre is 5.35:1 against white, the same as the Flow blue, so it can carry
-link text. It is darker and browner than the amber status colour; keep
-amber for results and ochre for the chrome, so a reader never takes a
-brand bar for a warning.
+Graphite is 10.6:1 against white, so it carries link text and small
+labels with room to spare. It is a neutral on purpose: the bench measures
+the other products rather than standing among them, so it takes no hue
+of its own, as the toolkit hub does, and a brand bar can never be read as
+a warning or a pass. The bench carried ochre (`#8f6214`) for part of
+2026-10-11, until the owner gave the warm accent to BIM Open Plot, whose
+pages are full of coloured bars.
 
 A results page compares our tools with others. Every tool's row uses the
 same colours; only the selected row takes the accent soft. No tool gets a

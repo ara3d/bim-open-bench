@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172 32" width="344" height="64">
 <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@600;700&amp;display=swap');text{font-family:'Instrument Sans','Public Sans',system-ui,sans-serif;font-size:15px;letter-spacing:-0.01em}</style>
-<g transform="translate(4 4)"><path fill="#8f6214" d="M2 2h2v20H2ZM5.5 3h5v4H5.5ZM5.5 10h9v4H5.5ZM5.5 17h10.5v4H5.5ZM15.6 19a3.2 3.2 0 1 1 6.4 0a3.2 3.2 0 1 1-6.4 0Z"/></g>
+<g transform="translate(4 4)"><path fill="#3b3f47" d="M2 2h2v20H2ZM5.5 3h5v4H5.5ZM5.5 10h9v4H5.5ZM5.5 17h10.5v4H5.5ZM15.6 19a3.2 3.2 0 1 1 6.4 0a3.2 3.2 0 1 1-6.4 0Z"/></g>
 <text x="36" y="21.5"><tspan font-weight="600" fill="#5a606c">BIM Open</tspan><tspan font-weight="700" fill="#171a1f" dx="4">Bench</tspan></text>
 </svg>
