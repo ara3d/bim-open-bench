@@ -42,21 +42,22 @@ Each suite is one folder under `suites/`, with the same shape: a task or questio
 | `query` | Query speed and answers after conversion | DuckDB over BOS, SQLite, IfcOpenShell scripts | Later, if asked for |
 | `size` | File size and conversion time | IFC, BOS (Parquet), That Open Fragments, glTF | Later, if asked for |
 
-The `view` suite starts with five viewers, all of which run offline in a browser from a script:
+The `view` suite starts with six viewers, all of which run offline in a browser from a script:
 
 1. BIM Open Viewer
 2. IFClite
 3. Speckle's viewer, through the offline fork in `bim-open-web-viewer` (no server, no account)
 4. That Open Engine, timed on raw IFC and on Fragments made ahead
 5. xeokit, timed on raw IFC and on XKT made ahead
+6. Static glTF Viewer (EverseDevelopment/Static.glTF.Viewer, MIT, three.js 0.160, a Vite page adapted from Don McCurdy's three-gltf-viewer, last pushed 2025-10-14), showing a GLB made ahead by IfcConvert: the baseline, a plain three.js scene with no BIM code
 
-IfcConvert to GLB in a plain three.js viewer joins as a baseline once the geometry suite needs it. xBIM WeXplorer comes next if its conversion step can be scripted. Desktop viewers (Bonsai, BIMcollab ZOOM, Solibri Anywhere, FZKViewer) get a one-off manual table, not an automated suite.
+xBIM WeXplorer comes next if its conversion step can be scripted. Desktop viewers (Bonsai, BIMcollab ZOOM, Solibri Anywhere, FZKViewer) get a one-off manual table, not an automated suite.
 
 #### The side-by-side page
 
-The first thing the suite ships is not a table of numbers but a page, `site/side-by-side.html`, that opens one model in all five viewers at once, so a person can watch them load and then orbit each. The layout is deliberately partial: BIM Open Viewer takes the left half, and the other four share the right half in a two-by-two grid. A toolbar holds the model picker, a Load button that starts every pane at the same instant, and a per-pane line with the viewer's name and version, its state (fetching, parsing, first frame, done, failed), the elapsed time, and the bytes it fetched. The page is a demo first and a measurement second; the numbers it shows are honest but the automated suite, not the page, produces the published ones.
+The first thing the suite ships is not a table of numbers but a page, `site/side-by-side.html`, that opens one model in all six viewers at once, so a person can watch them load and then orbit each. The layout is deliberately partial: BIM Open Viewer takes the left half, and the other five share the right half in a grid of two columns and three rows. A toolbar holds the model picker, a Load button that starts every pane at the same instant, and a per-pane line with the viewer's name and version, its state (fetching, parsing, first frame, done, failed), the elapsed time, and the bytes it fetched. The page is a demo first and a measurement second; the numbers it shows are honest but the automated suite, not the page, produces the published ones.
 
-What each pane loads, and why it differs. Three of the five parse IFC in the browser themselves: IFClite (its own Rust parser in WebAssembly), That Open (web-ifc, then Fragments), and xeokit (`WebIFCLoaderPlugin`, also over web-ifc). The other two do not read IFC at all: BIM Open Viewer reads BOS, GLB, and OBJ, and Speckle's viewer reads Speckle objects, which the fork can build from BOS in memory. So every model in the corpus is kept in the forms each viewer accepts, converted ahead of time by script, and the page shows the conversion time beside the load time, as the fairness rules require. The conversions and who makes them:
+What each pane loads, and why it differs. Three of the six parse IFC in the browser themselves: IFClite (its own Rust parser in WebAssembly), That Open (web-ifc, then Fragments), and xeokit (`WebIFCLoaderPlugin`, also over web-ifc). The other three do not read IFC at all: BIM Open Viewer reads BOS, GLB, and OBJ; Speckle's viewer reads Speckle objects, which the fork can build from BOS in memory; and Static glTF Viewer reads only glTF and GLB. So every model in the corpus is kept in the forms each viewer accepts, converted ahead of time by script, and the page shows the conversion time beside the load time, as the fairness rules require. The conversions and who makes them:
 
 | Form | Made by | Used by |
 |---|---|---|
@@ -64,10 +65,11 @@ What each pane loads, and why it differs. Three of the five parse IFC in the bro
 | `.bos` (Parquet) | the toolkit's `ifc_to_bos` | BIM Open Viewer, Speckle fork |
 | `.frag` | That Open's `IfcImporter` in Node | That Open, second timing |
 | `.xkt` | xeokit's `convert2xkt` | xeokit, second timing |
+| `.glb` | IfcOpenShell's IfcConvert, pinned release | Static glTF Viewer; BIM Open Viewer, second timing |
 
 This is the bias the page admits: the BIM Open side gets a pre-converted file and the largest pane. The per-pane line says so in words ("BOS, converted ahead in 4.1 s"), which is enough for now.
 
-Each pane is an iframe with its own small Vite page and its own `node_modules`, under `tools/<viewer>/`. Five viewers pin three different three.js versions (Speckle's fork 0.140, That Open 0.182 or later, BIM Open Viewer 0.185), IFClite renders with WebGPU, and xeokit has its own WebGL engine; one bundle cannot hold them, and a crash in one must not take the others down. The page and the panes speak one small `postMessage` contract: the page sends `{load, model, url}`; a pane replies with `{state, t, bytes}` at each state change, and `{error, message}` on failure. The same pane pages, driven by Playwright instead of the toolbar, are the automated `view` suite's adapters, so nothing is written twice.
+Each pane is an iframe with its own small Vite page and its own `node_modules`, under `tools/<viewer>/`. Six viewers pin four different three.js versions (Speckle's fork 0.140, Static glTF Viewer 0.160, That Open 0.182 or later, BIM Open Viewer 0.185), IFClite renders with WebGPU, and xeokit has its own WebGL engine; one bundle cannot hold them, and a crash in one must not take the others down. The page and the panes speak one small `postMessage` contract: the page sends `{load, model, url}`; a pane replies with `{state, t, bytes}` at each state change, and `{error, message}` on failure. Static glTF Viewer is not on npm and takes its model from a `?file=` query parameter (`?kiosk=1` hides its header), so its pane is the viewer's own page built from a pinned commit under `tools/static-gltf/`, wrapped by a few lines that pass the URL in and report the states out. The same pane pages, driven by Playwright instead of the toolbar, are the automated `view` suite's adapters, so nothing is written twice.
 
 Questions the first build answers: whether IFClite's renderer falls back to WebGL where WebGPU is off (a laptop without it, or a headless run); whether the Speckle fork's BOS path, measured at about 20 s for Snowdon in Node, is also the right path for the small models or whether Speckle objects made ahead are fairer to it; whether xeokit's `WebIFCLoaderPlugin` and That Open's loader can share one `web-ifc` WASM fetch or each pay for their own; and what the page does with a model one viewer cannot open (show the failure, keep the others running).
 
@@ -109,8 +111,8 @@ writes `results/<suite>/<date>-<tool>.json` with the tool and version, the machi
 Each step ends with something that runs and a result committed.
 
 1. **A small corpus.** Manifest, fetch script, and three models with known licences: one small (the buildingSMART Duplex, CC BY 4.0), one medium (Schependomlaan), one large enough to separate the viewers. Each kept in the four forms the table above lists, made by a `convert` script that records its own time. Done when a fresh clone fetches, verifies, and converts every model with one command.
-2. **Five panes.** One iframe page per viewer under `tools/<viewer>/`, each pinned to an exact version, each speaking the `postMessage` contract, each shown to load the Duplex on its own. Order: BIM Open Viewer and That Open first (the toolkit already builds against both), then xeokit, IFClite, and the Speckle fork, which carry the open questions. Done when each pane page loads the three models and reports its states.
-3. **The side-by-side page.** The toolbar, the layout, the per-pane lines, and the published copy on GitHub Pages. Done when a person opens the page, picks a model, presses Load, and watches all five.
+2. **Six panes.** One iframe page per viewer under `tools/<viewer>/`, each pinned to an exact version, each speaking the `postMessage` contract, each shown to load the Duplex on its own. Order: Static glTF Viewer, BIM Open Viewer, and That Open first (the baseline is the smallest adapter, and the toolkit already builds against the other two), then xeokit, IFClite, and the Speckle fork, which carry the open questions. Done when each pane page loads the three models and reports its states.
+3. **The side-by-side page.** The toolbar, the layout, the per-pane lines, and the published copy on GitHub Pages. Done when a person opens the page, picks a model, presses Load, and watches all six.
 4. **The automated `view` suite.** Playwright drives the same pane pages, records first frame, peak memory, and orbit frame rate per viewer and model, and writes the result format. Done when `bench run view` produces one result file per viewer and the report page lists them.
 5. **Runner and report.** The result format and the report page, generalised from step 4 and shared by every later suite.
 6. **`ask` suite.** Port the toolkit's question sets and IFC-Bench; write the scorer; run both arms (with the toolkit, and with raw files and a shell) with the same Claude model. Done when one command runs both arms and writes a report with correctness, time, and tokens per arm. This is the toolkit's workflow 5, and it should install the toolkit through its documented one-command install, which then gets checked on every run.
