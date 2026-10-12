@@ -1,0 +1,12 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Speckle viewer (fork) pane</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #e9ecef; }
+  body { display: flex; flex-direction: column; }
+  #status { font: 12px monospace; padding: 2px 6px; background: #222; color: #eee; white-space: pre-wrap; }
+  #viewer { flex: 1; position: relative; min-height: 0; }
+</style>
+<div id="status"></div>
+<div id="viewer"></div>
+<script type="module" src="dist/pane.js"></script>

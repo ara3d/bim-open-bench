@@ -1,0 +1,6 @@
+{
+  "repo": "C:/Users/cdigg/git/bim-open-web-viewer",
+  "commit": "ddf4727b75cb2bc9180e81a25fe4ba75f789b0aa",
+  "build": "npm ci && npm run build",
+  "pane": "npm ci --no-audit --no-fund && npx vite build"
+}

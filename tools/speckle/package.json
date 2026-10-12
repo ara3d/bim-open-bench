@@ -1,0 +1,14 @@
+{
+  "name": "bench-pane-speckle",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Pane bundle for the Speckle viewer fork (bim-open-web-viewer) in BIM Open Bench",
+  "type": "module",
+  "dependencies": {
+    "@bim-open-web-viewer/bos": "file:checkout/packages/bos",
+    "@bim-open-web-viewer/viewer": "file:checkout/packages/viewer"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
