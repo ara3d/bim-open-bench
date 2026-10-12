@@ -3,10 +3,14 @@
 <title>Speckle viewer (fork) pane</title>
 <style>
   html, body { margin: 0; height: 100%; background: #e9ecef; }
-  body { display: flex; flex-direction: column; }
+  body { display: flex; flex-direction: column; position: relative; }
   #status { font: 12px monospace; padding: 2px 6px; background: #222; color: #eee; white-space: pre-wrap; }
   #viewer { flex: 1; position: relative; min-height: 0; }
+  #logo { position: absolute; right: 8px; bottom: 8px; height: 24px; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
+  #logo img { height: 24px; width: auto; display: block; }
+  #logo span { font: 11px system-ui, sans-serif; color: #5a606c; }
 </style>
 <div id="status"></div>
 <div id="viewer"></div>
+<div id="logo"><img src="logo.png" alt="Speckle"><span>fork</span></div>
 <script type="module" src="dist/pane.js"></script>

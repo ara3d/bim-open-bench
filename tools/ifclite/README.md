@@ -73,3 +73,5 @@ Run on 2026-10-11 with headless Chrome, SwiftShader (software WebGPU), while oth
 | sixty5 | 343 MB | not completed | | | the page did not open within 1500 s (WebGPU absent, no status line); the cause was not found, probably the overloaded machine |
 
 An earlier Duplex run (28 MB bundle with the wasm inlined) took 61.7 s to `done`, and before the frame loop was added it reported `done` over an empty canvas, which is why `done` waits for a drawn frame.
+
+Logo: `logo.png` is https://github.com/LTplus-AG/ifc-lite/blob/main/apps/viewer/public/favicon-96x96-cropped.png (repository MPL-2.0; the mark belongs to LTplus AG), used to identify the viewer in the benchmark. The full `docs/assets/logo.png` there is 1.3 MB, too large for a pane.

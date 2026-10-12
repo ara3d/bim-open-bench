@@ -4,10 +4,13 @@
 <link rel="icon" href="data:,">
 <style>
   html, body { margin: 0; height: 100%; background: #111; }
-  body { display: flex; flex-direction: column; }
+  body { display: flex; flex-direction: column; position: relative; }
   #status { font: 12px monospace; padding: 2px 6px; background: #222; color: #eee; white-space: pre-wrap; }
   canvas { flex: 1; min-height: 0; width: 100%; display: block; }
+  #logo { position: absolute; right: 8px; bottom: 8px; height: 24px; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
+  #logo img { height: 24px; width: auto; display: block; }
 </style>
 <div id="status"></div>
 <canvas id="view"></canvas>
+<div id="logo"><img src="logo.png" alt="IFClite"></div>
 <script type="module" src="./dist/pane.js"></script>

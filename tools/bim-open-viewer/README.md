@@ -40,3 +40,5 @@ node tools/bim-open-viewer/check.mjs duplex schependomlaan [--port 8771] [--time
 ```
 
 `check.mjs` drives headless Chrome (WebGL through SwiftShader) over the DevTools protocol with no dependencies, waits for `done` or `failed`, prints the status line, lists console errors, and writes `checkout/screenshot-<model>.png` (git-ignored). It exits 1 on a failure, a console error or a timeout. It needs Node 22 (global `WebSocket`) and Chrome (set `CHROME` if it is not in the usual path). A name ending `.glb` or `.bos` is opened as `?url=/models/cache/<name>`.
+
+Logo: `logo.svg` is `docs/brand/viewer-lockup.svg` from https://github.com/ara3d/bim-open-viewer (MIT), used to identify the viewer in the benchmark.

@@ -50,3 +50,5 @@ Whether that is fair to Speckle stays open. The README's question is whether Spe
 ## Checking
 
 `node scripts/serve.mjs --port 8775`, then `node tools/speckle/check.mjs [model ...] [--port 8775] [--timeout 300]`. The script starts headless Chrome, opens `pane.html?model=<model>`, waits for `done` or `failed`, prints the status line and phases, and saves `results/scratch/speckle-<model>.png` (git-ignored). It exits 1 on a failure, a console error, or a canvas with one flat colour. It needs Node 22 (global `WebSocket`) and Chrome (`CHROME` overrides the path).
+
+Logo: `logo.png` is https://github.com/specklesystems/speckle-server/blob/main/packages/frontend-2/public/images/logo.png (repository Apache-2.0; the mark belongs to Speckle Systems), used to identify the viewer in the benchmark; the word "fork" beside it says the pane runs the bim-open-web-viewer fork, not Speckle's release.
