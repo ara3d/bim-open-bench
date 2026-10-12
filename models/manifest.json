@@ -1,0 +1,70 @@
+{
+  "_comment": "The model corpus. See models/README.md for every field. sha256 and bytes describe the downloaded .ifc file; schema is the FILE_SCHEMA name in its header.",
+  "models": [
+    {
+      "id": "duplex",
+      "title": "Duplex Apartment",
+      "source": {
+        "url": "https://media.githubusercontent.com/media/buildingsmart-community/Community-Sample-Test-Files/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment/Duplex_A_20110907.ifc",
+        "page": "https://github.com/buildingsmart-community/Community-Sample-Test-Files/tree/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Duplex%20Apartment"
+      },
+      "licence": "CC-BY-4.0",
+      "licenceHolder": "buildingSMART International",
+      "attribution": "BSI (2020) Duplex Apartment Test Files, buildingSMART International",
+      "sha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+      "bytes": 2380763,
+      "schema": "IFC2X3",
+      "facts": {}
+    },
+    {
+      "id": "schependomlaan",
+      "title": "Schependomlaan design model",
+      "source": {
+        "url": "https://media.githubusercontent.com/media/buildingsmart-community/Community-Sample-Test-Files/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Schependomlaan/Design%20model%20IFC/IFC%20Schependomlaan.ifc",
+        "page": "https://github.com/buildingsmart-community/Community-Sample-Test-Files/tree/7ddf57a201f88a0c213d5322b02ed15e94a60a40/IFC%202.3.0.1%20(IFC%202x3)/Schependomlaan"
+      },
+      "licence": "CC-BY-4.0",
+      "licenceHolder": "original owners",
+      "attribution": "Schependomlaan dataset, (C) original owners, CC BY 4.0, via buildingSMART Community-Sample-Test-Files",
+      "sha256": "2c3565ca1904f2aa61adab92024cf3755b2c5b21a498144d3094d7cb58cebec7",
+      "bytes": 49286967,
+      "schema": "IFC2X3",
+      "facts": {}
+    },
+    {
+      "id": "sixty5",
+      "title": "Sixty5 architecture model",
+      "source": {
+        "url": "https://huggingface.co/datasets/sylvainHellin/ifc-bench/resolve/df630deb761efcb184f1a30ab374da7dbae38225/projects/sixty5/arc.ifc",
+        "page": "https://huggingface.co/datasets/sylvainHellin/ifc-bench/tree/df630deb761efcb184f1a30ab374da7dbae38225/projects/sixty5"
+      },
+      "licence": "CC-BY-4.0",
+      "licenceHolder": "unspecified (buildingSMART SDK - S1 sample, as recorded in the IFC-Bench licence file)",
+      "attribution": "Sixty5, buildingSMART International Community-Sample-Test-Files (SDK - S1), CC BY 4.0, mirrored by the IFC-Bench dataset (sylvainHellin/ifc-bench)",
+      "sha256": "e91ddbbd672bbde946af14631de4c732f0cf8a7cfae5dbbf06fbeab03b5c46df",
+      "bytes": 342657851,
+      "schema": "IFC2X3",
+      "facts": {}
+    }
+  ],
+  "tools": {
+    "ifcconvert": {
+      "version": "0.9.0",
+      "release": "https://github.com/IfcOpenShell/IfcOpenShell/releases/tag/ifcconvert-0.9.0",
+      "platforms": {
+        "win32-x64": {
+          "url": "https://github.com/IfcOpenShell/IfcOpenShell/releases/download/ifcconvert-0.9.0/ifcconvert-0.9.0-win64.zip",
+          "sha256": "eab154be69904254b84647da200ed1f760d69dd1b8e5ca6cc5dbf8c839b764e3",
+          "bytes": 37307981,
+          "executable": "IfcConvert.exe"
+        },
+        "linux-x64": {
+          "url": "https://github.com/IfcOpenShell/IfcOpenShell/releases/download/ifcconvert-0.9.0/ifcconvert-0.9.0-linux64.zip",
+          "sha256": "084f9ceb636b1c7594e223a81049e085d076e122fc8d7214016f85381e394071",
+          "bytes": 55291111,
+          "executable": "IfcConvert"
+        }
+      }
+    }
+  }
+}
