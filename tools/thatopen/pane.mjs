@@ -72,19 +72,19 @@ async function loadModel({ model: id, url, report }) {
   try {
     const isFrag = new URL(url, location.href).pathname.endsWith(".frag");
     const bytes = await fetchBytes(url, report);
+    const size = bytes.length; // the fragments worker takes the buffer, leaving it empty
     engine ??= await startEngine();
     const { world, fragments, ifcLoader } = engine;
     for (const old of [...fragments.list.values()]) await fragments.core.disposeModel(old.modelId);
-
     const model = isFrag
       ? await fragments.core.load(bytes, { modelId: id || "model" })
       : await ifcLoader.load(bytes, true, id || "model");
     fitCamera(world, model);
     await fragments.core.update(true);
     await nextFrame();
-    report("first-frame", { bytes: bytes.length });
+    report("first-frame", { bytes: size });
     await fragments.core.update(true);
-    report("done", { bytes: bytes.length });
+    report("done", { bytes: size });
   } catch (error) {
     console.error(error);
     report("failed", { message: String(error?.message ?? error) });
