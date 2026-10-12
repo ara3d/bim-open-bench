@@ -1,0 +1,17 @@
+{
+  "name": "bench-pane-thatopen",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "That Open Engine pane for BIM Open Bench: exact versions, built by node scripts/tools.mjs thatopen",
+  "dependencies": {
+    "@thatopen/components": "3.4.9",
+    "@thatopen/fragments": "3.4.8",
+    "camera-controls": "3.1.2",
+    "three": "0.185.0",
+    "web-ifc": "0.0.77"
+  },
+  "devDependencies": {
+    "vite": "8.3.4"
+  }
+}

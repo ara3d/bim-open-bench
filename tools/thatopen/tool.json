@@ -1,0 +1,3 @@
+{
+  "pane": "npm ci && npx vite build"
+}
