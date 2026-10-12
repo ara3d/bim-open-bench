@@ -1,0 +1,5 @@
+{
+  "repo": "https://github.com/ara3d/bim-open-data",
+  "commit": "e85c98a1d84e1e95cb3064ad3dd46ba36108849b",
+  "build": "node deps.mjs && dotnet build tools/ifc-to-bos -c Release --artifacts-path artifacts/ifc-to-bos"
+}
