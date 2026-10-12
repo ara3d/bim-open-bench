@@ -81,7 +81,8 @@ try {
     state = await evaluate(`document.getElementById("status")?.dataset.state`);
     if (state === "done" || state === "failed") break;
   }
-  console.log(await evaluate(`document.getElementById("status")?.textContent`));
+  const line = await evaluate(`document.getElementById("status")?.textContent`);
+  console.log(line ?? `no status line (page: ${await evaluate("location.href + \" \" + document.readyState")})`);
   const png = await send("Page.captureScreenshot", { format: "png" }, 60_000);
   if (png.result) {
     mkdirSync(dirname(shot), { recursive: true });
