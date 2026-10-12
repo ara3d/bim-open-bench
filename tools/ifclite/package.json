@@ -1,0 +1,14 @@
+{
+  "name": "bench-ifclite-pane",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": { "build": "vite build" },
+  "dependencies": {
+    "@ifc-lite/geometry": "7.7.0",
+    "@ifc-lite/renderer": "6.0.1"
+  },
+  "devDependencies": {
+    "vite": "7.1.12"
+  }
+}

@@ -1,0 +1,13 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>IFClite pane</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { margin: 0; height: 100%; background: #111; }
+  body { display: flex; flex-direction: column; }
+  #status { font: 12px monospace; padding: 2px 6px; background: #222; color: #eee; white-space: pre-wrap; }
+  canvas { flex: 1; min-height: 0; width: 100%; display: block; }
+</style>
+<div id="status"></div>
+<canvas id="view"></canvas>
+<script type="module" src="./dist/pane.js"></script>
