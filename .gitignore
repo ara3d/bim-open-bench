@@ -5,3 +5,5 @@ tools/*/checkout/
 node_modules/
 # Results are committed; scratch output is not.
 results/**/scratch/
+# Bundled pane output, built by scripts/tools.mjs from tool.json "pane".
+tools/*/dist/

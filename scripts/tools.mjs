@@ -4,8 +4,12 @@
 //   node scripts/tools.mjs [name]            clone at the pin and build (all tools, or one)
 //   node scripts/tools.mjs [name] --check    print each checkout's commit against its pin
 //
-// Each tools/<name>/tool.json holds { repo, commit, build }. The checkout goes
-// to tools/<name>/checkout/ (git-ignored); `build` runs there in a shell.
+// Each tools/<name>/tool.json holds { repo, commit, build, pane }. `repo` may be a
+// git URL or a local path; the checkout goes to tools/<name>/checkout/ (git-ignored)
+// and `build` runs there in a shell. A pane that needs its own bundle (an npm-based
+// viewer) sets `pane`, a command run in tools/<name>/ itself after the checkout
+// build, writing tools/<name>/dist/ (git-ignored). `repo`, `commit` and `build` are
+// optional for a tool that is only npm packages plus a `pane` command.
 import { execFileSync, execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -31,7 +35,7 @@ for (const name of names) {
   const dir = join(toolsDir, name);
   const spec = JSON.parse(readFileSync(join(dir, "tool.json"), "utf8"));
   const checkout = join(dir, "checkout");
-  if (!check) {
+  if (!check && spec.repo) {
     if (!existsSync(checkout)) {
       console.log(`clone  ${name} <- ${spec.repo}`);
       execFileSync("git", ["clone", "--quiet", spec.repo, checkout], { stdio: "inherit" });
@@ -43,6 +47,11 @@ for (const name of names) {
     console.log(`build  ${name}: ${spec.build}`);
     execSync(spec.build, { cwd: checkout, stdio: "inherit" });
   }
+  if (!check && spec.pane) {
+    console.log(`pane   ${name}: ${spec.pane}`);
+    execSync(spec.pane, { cwd: dir, stdio: "inherit" });
+  }
+  if (!spec.repo) { console.log(`${name.padEnd(14)} (npm packages only)`); continue; }
   const commit = commitOf(checkout);
   const state = !commit ? "missing" : commit === spec.commit ? "matches pin" : `pin is ${spec.commit.slice(0, 7)}`;
   if (state !== "matches pin") bad = true;
