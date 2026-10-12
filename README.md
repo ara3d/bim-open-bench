@@ -4,7 +4,7 @@ Reproducible benchmarks for IFC parsers, viewers, and AI agents, run on public b
 
 BIM Open Bench measures tools that read building models. Every tool gets the same public IFC files and is scored against the same known answers. Each run records the tool's version, the machine, and the hash of every model, so anyone can rerun it and check the numbers. It is part of the [BIM Open](https://github.com/ara3d/bim-open-toolkit) family, but it tests competing tools on equal terms.
 
-Nothing below is built yet. This README is the plan.
+This README is the plan. Built so far (2026-10-11): the three-model corpus with its fetch and convert scripts (`models/`, `scripts/`), and the Static glTF Viewer pane (`tools/static-gltf/`); see the build log at the end.
 
 ## Why it exists
 
@@ -69,7 +69,7 @@ What each pane loads, and why it differs. Three of the six parse IFC in the brow
 
 This is the bias the page admits: the BIM Open side gets a pre-converted file and the largest pane. The per-pane line says so in words ("BOS, converted ahead in 4.1 s"), which is enough for now.
 
-Each pane is an iframe with its own small Vite page and its own `node_modules`, under `tools/<viewer>/`. Six viewers pin four different three.js versions (Speckle's fork 0.140, Static glTF Viewer 0.160, That Open 0.182 or later, BIM Open Viewer 0.185), IFClite renders with WebGPU, and xeokit has its own WebGL engine; one bundle cannot hold them, and a crash in one must not take the others down. The page and the panes speak one small `postMessage` contract: the page sends `{load, model, url}`; a pane replies with `{state, t, bytes}` at each state change, and `{error, message}` on failure. Static glTF Viewer is not on npm and takes its model from a `?file=` query parameter (`?kiosk=1` hides its header), so its pane is the viewer's own page built from a pinned commit under `tools/static-gltf/`, wrapped by a few lines that pass the URL in and report the states out. The same pane pages, driven by Playwright instead of the toolbar, are the automated `view` suite's adapters, so nothing is written twice.
+Each pane is an iframe with its own small Vite page and its own `node_modules`, under `tools/<viewer>/`. Six viewers pin four different three.js versions (Speckle's fork 0.140, Static glTF Viewer 0.160, That Open 0.182 or later, BIM Open Viewer 0.185), IFClite renders with WebGPU, and xeokit has its own WebGL engine; one bundle cannot hold them, and a crash in one must not take the others down. The page and the panes speak one small `postMessage` contract, written in `tools/README.md`: the page sends a load message with the model id and the file's URL; a pane announces itself with its tool name and version, then reports each state (fetching, parsing, first-frame, done, failed) with the elapsed milliseconds and, when known, the bytes. Static glTF Viewer is not on npm and takes its model from a `?file=` query parameter (`?kiosk=1` hides its header), so its pane is the viewer's own page built from a pinned commit under `tools/static-gltf/`, wrapped by a few lines that pass the URL in and report the states out. The same pane pages, driven by Playwright instead of the toolbar, are the automated `view` suite's adapters, so nothing is written twice.
 
 Questions the first build answers: whether IFClite's renderer falls back to WebGL where WebGPU is off (a laptop without it, or a headless run); whether the Speckle fork's BOS path, measured at about 20 s for Snowdon in Node, is also the right path for the small models or whether Speckle objects made ahead are fairer to it; whether xeokit's `WebIFCLoaderPlugin` and That Open's loader can share one `web-ifc` WASM fetch or each pay for their own; and what the page does with a model one viewer cannot open (show the failure, keep the others running).
 
@@ -110,7 +110,7 @@ writes `results/<suite>/<date>-<tool>.json` with the tool and version, the machi
 
 Each step ends with something that runs and a result committed.
 
-1. **A small corpus.** Manifest, fetch script, and three models with known licences: one small (the buildingSMART Duplex, CC BY 4.0), one medium (Schependomlaan), one large enough to separate the viewers. Each kept in the four forms the table above lists, made by a `convert` script that records its own time. Done when a fresh clone fetches, verifies, and converts every model with one command.
+1. **A small corpus.** Manifest, fetch script, and three models with known licences: one small (the buildingSMART Duplex, CC BY 4.0), one medium (Schependomlaan), one large enough to separate the viewers. Each kept in the forms the table above lists (today only `.ifc` and `.glb`), made by a `convert` script that records its own time. Done when a fresh clone fetches, verifies, and converts every model with one command.
 2. **Six panes.** One iframe page per viewer under `tools/<viewer>/`, each pinned to an exact version, each speaking the `postMessage` contract, each shown to load the Duplex on its own. Order: Static glTF Viewer, BIM Open Viewer, and That Open first (the baseline is the smallest adapter, and the toolkit already builds against the other two), then xeokit, IFClite, and the Speckle fork, which carry the open questions. Done when each pane page loads the three models and reports its states.
 3. **The side-by-side page.** The toolbar, the layout, the per-pane lines, and the published copy on GitHub Pages. Done when a person opens the page, picks a model, presses Load, and watches all six.
 4. **The automated `view` suite.** Playwright drives the same pane pages, records first frame, peak memory, and orbit frame rate per viewer and model, and writes the result format. Done when `bench run view` produces one result file per viewer and the report page lists them.
@@ -127,6 +127,11 @@ Each step ends with something that runs and a result committed.
 - Which machine runs the published numbers, and should the `view` suite also report a laptop without a dedicated GPU?
 - Does the `ask` suite wait for the toolkit's one-command install (workflow 1), or build from source until it exists?
 - How often is the published report rerun: on each toolkit release, or on each release of any tool in it?
+
+## Build log
+
+- 2026-10-11, corpus (step 1): `models/manifest.json` pins the Duplex (2.4 MB) and Schependomlaan (49 MB) from buildingSMART's `Community-Sample-Test-Files` at one commit through Git LFS media URLs, and Sixty5 (343 MB, the largest CC BY 4.0 model in IFC-Bench) from the dataset's pinned Hugging Face revision. `scripts/fetch.mjs` streams and verifies them; `scripts/convert.mjs` downloads IfcConvert 0.9.0 (win64 and linux64, pinned by URL and hash) and writes a `.glb` per model with its time in a record beside it: Duplex 4.5 s and 1.0 MB, Schependomlaan 140 s and 15.7 MB, Sixty5 301 s and 68 MB. Commits 16fe3f1, 09ba4fe, b0e309b.
+- 2026-10-11, Static glTF Viewer pane (step 2, first of six): `scripts/tools.mjs` clones the viewer at commit 4089240 and builds it; `scripts/serve.mjs` serves the repository with Range requests and the cross-origin isolation headers, under which the viewer still renders; `tools/static-gltf/pane.html` wraps the built page in an iframe and reports the states by watching its spinner and the GLB's resource timing. The Duplex reaches first frame in 0.56 s on a warm reload in the desktop browser (9 s on the first open, warm-up of the browser itself). What the pane cannot see is listed in `tools/static-gltf/README.md`: running bytes, fetch apart from parse, and the true first draw. Commits 281d2d7, 856d2ee, d54c5d6.
 
 ## Branding
 
