@@ -1,0 +1,11 @@
+{
+  "name": "bim-open-bench-pane-bim-open-viewer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "The bench pane for BIM Open Viewer: a Vite bundle over the sources of the checkout pinned in tool.json.",
+  "devDependencies": {
+    "three": "0.185.1",
+    "vite": "8.2.2"
+  }
+}
