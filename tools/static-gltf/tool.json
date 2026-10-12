@@ -1,0 +1,5 @@
+{
+  "repo": "https://github.com/EverseDevelopment/Static.glTF.Viewer",
+  "commit": "408924016513efece129c75a2ca8955730a5715b",
+  "build": "npm ci && npx vite build --base ./"
+}
