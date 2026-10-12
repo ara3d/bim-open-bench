@@ -1,0 +1,17 @@
+{
+  "name": "bim-open-bench-xeokit-pane",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "xeokit pane for BIM Open Bench: WebIFCLoaderPlugin on .ifc, XKTLoaderPlugin on .xkt",
+  "scripts": { "build": "vite build" },
+  "dependencies": {
+    "@xeokit/xeokit-sdk": "2.6.114",
+    "@xeokit/xeokit-convert": "1.3.2",
+    "web-ifc": "0.0.70",
+    "web-ifc-0.0.51": "npm:web-ifc@0.0.51"
+  },
+  "devDependencies": {
+    "vite": "7.1.12"
+  }
+}
