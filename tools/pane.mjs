@@ -26,13 +26,17 @@ export function formatState(msg) {
 
 export function createPane({ tool, version, ext, load, win = window }) {
   const doc = win.document;
+  const embedded = win.parent && win.parent !== win;
   let line = doc.getElementById("status");
+  // Inside the side-by-side page the parent shows its own line per pane, so the
+  // pane's line would only repeat it and wrap in a narrow slot. Messages still go out.
   if (!line) {
     line = doc.createElement("div");
     line.id = "status";
     line.style.cssText = "font:12px monospace;padding:2px 6px;background:#222;color:#eee;white-space:pre";
     doc.body.prepend(line);
   }
+  if (embedded) line.hidden = true;
   let origin = win.performance.now();
   let current = { model: "", url: "" };
   let history = [];
