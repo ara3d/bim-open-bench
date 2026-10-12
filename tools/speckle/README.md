@@ -22,9 +22,17 @@ This pane runs the Speckle viewer's engine through an offline fork, [bim-open-we
 
 `first-frame` and `done` carry a `phases` object (also written to `document.body.dataset.phases`). Times are milliseconds since the load began. `fetchedAt`, `decodedAt`, `traversedAt`, `convertedAt`, `firstBatchAt`, `batchedAt` are marks (the last `Traversed` and `Converted` loader events; `Converted` fires only every 1,000 nodes, so it is absent on a model smaller than that). `traverseMs`, `renderTreeMs`, and `batcher` (a time for each step the batcher logs) come from the fork's own timing log in `globalThis.__phases`, which is a debug aid, not an API. `instances`, `meshes`, `nodes`, `objects`, `drawCalls`, `triangles` are counts.
 
-## Observed, 2026-10-12, Duplex (660 instances, 435 meshes), headless Chrome with SwiftShader (software WebGL), machine busy with other builds
+## Observed, 2026-10-12, headless Chrome with SwiftShader (software WebGL), no GPU
 
-`node tools/speckle/check.mjs duplex` reached `done` with the model visible and no console errors: parsing at 2.7 s (response and WebGL start), decode finished at 3.7 s, first frame 7.5 s, done 18.8 s, 20 draw calls, 26,774 triangles. The tree took 7 ms and the render tree 583 ms; the batcher's de-instancing took 1.4 s. These times include software rendering and a loaded machine (an earlier, quieter run reached `done` at 13.5 s, with batching finished at 7.4 s), so compare them only with other panes run the same way. Schependomlaan and Sixty5 have no `.bos` yet; run `check.mjs schependomlaan sixty5` once they exist.
+`node tools/speckle/check.mjs duplex schependomlaan sixty5` reached `done` on all three, the model visible, no console errors. Milliseconds since the load began; the machine was running other agents' builds, so the same model's times moved by a factor of two to ten between runs. Two runs of each are shown as a range.
+
+| Model | Instances / meshes | Decode finished | First frame | Done (batched) | Draw calls | Triangles |
+|---|---|---|---|---|---|---|
+| Duplex (85 KB) | 660 / 435 | 1.7 to 3.7 s | 3.3 to 7.5 s | 3.3 to 7.4 s | 20 | 26,774 |
+| Schependomlaan (968 KB) | 5,972 / 4,702 | 1.4 to 2.6 s | 3.0 to 5.8 s | 3.8 to 15.5 s | 60 | 261,503 |
+| Sixty5 (2.5 MB) | 40,740 / 20,382 | 3.8 s (one run) | 10.1 s | 143 s | 90 | 1,621,181 |
+
+The fork's own log splits the quiet Duplex run into 11 ms for the tree, 26 ms for the render tree, and 64 ms for batching; on Sixty5 the "mesh batches" step alone took 46 s. The first frame is early because the viewer draws each batch as it is built; `done` is when the last batch is in. Do not compare these with other panes unless they ran the same way.
 
 ## What the pane cannot observe
 

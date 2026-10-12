@@ -105,9 +105,11 @@ async function run({ url, report }) {
     });
     document.body.dataset.phases = JSON.stringify(phases);
     // A model whose batching ends before the poll saw a batch still gets a first frame.
-    await new Promise((r) => requestAnimationFrame(r));
-    if (stale()) return;
-    if (!firstFrame) report("first-frame", { bytes: buffer.byteLength, phases });
+    if (!firstFrame) {
+      await new Promise((r) => requestAnimationFrame(r));
+      if (stale()) return;
+      report("first-frame", { bytes: buffer.byteLength, phases });
+    }
     report("done", { bytes: buffer.byteLength, phases });
   } catch (e) {
     fail(e);
