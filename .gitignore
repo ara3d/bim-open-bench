@@ -1,0 +1,7 @@
+# Fetched models and converted forms: never committed (see README, "A model corpus").
+models/cache/
+# Tools fetched and built by scripts/tools.mjs, and their packages.
+tools/*/checkout/
+node_modules/
+# Results are committed; scratch output is not.
+results/**/scratch/
