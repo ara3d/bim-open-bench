@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/ara3d/bim-open-viewer",
-  "commit": "16b8a3c164adc4e5a266da202adc040aac09e875",
+  "commit": "bf02fa5851824f0e88b62be65e53e82cb00f843f",
   "build": "node deps.mjs && npm ci && npm run build -w @bim-open-viewer/core -w @bim-open-viewer/loaders",
   "pane": "npm ci && npx vite build"
 }
