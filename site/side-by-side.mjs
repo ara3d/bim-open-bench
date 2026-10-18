@@ -62,7 +62,12 @@ function makePane(spec) {
     pick.addEventListener("change", () => { pane.form = pick.value; });
   }
   // A pane whose bundle was not built (tools/<name>/dist/ is git-ignored) loads its page and never says ready.
-  pane.iframe.addEventListener("load", () => setTimeout(() => { if (!pane.ready) pane.fields.version.textContent = "no pane bundle on this host"; }, 4000));
+  pane.iframe.addEventListener("load", () => setTimeout(() => {
+    if (pane.ready) return;
+    pane.gaveUp = true;
+    pane.fields.version.textContent = "no pane bundle on this host";
+    maybeEnable();
+  }, 4000));
   return pane;
 }
 
@@ -113,7 +118,7 @@ window.addEventListener("message", (e) => {
 
 function maybeEnable() {
   loadButton.disabled = !(select.value && panes.some((p) => p.ready));
-  if (query.get("autoload") && !loadButton.disabled && panes.every((p) => p.ready) && !maybeEnable.fired) {
+  if (query.get("autoload") && !loadButton.disabled && panes.every((p) => p.ready || p.gaveUp) && !maybeEnable.fired) {
     maybeEnable.fired = true;
     load();
   }
