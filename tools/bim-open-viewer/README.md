@@ -29,16 +29,11 @@ How the bundle depends on the checkout: `vite.config.mjs` aliases `@bim-open-vie
 - Running bytes while fetching: the progress events carry them, but the contract takes one `bytes` value and the pane sends the final size with `parsing`.
 - Parsing, conversion (BOS to the viewer's internal form) and upload as separate costs: the loaders emit `parse`, `convert` and `metadata` phases, and the pane merges them into `parsing`.
 - The true first draw, as above. Under headless SwiftShader (software WebGL) the gap between `parsing` and `first-frame` is dominated by the CPU renderer.
-- Memory and frame rate: those belong to the Playwright-driven `view` suite.
+- Memory and frame rate: the `view` suite does not measure them yet.
 - GLB orientation: the viewer treats glTF as y-up, and IfcConvert's default GLB keeps the IFC's z-up axes, so the Duplex GLB appears on its end. The bench runs each tool with its defaults, so the pane does not correct it.
 
 ## Checking it
 
-```
-node scripts/serve.mjs --port 8771
-node tools/bim-open-viewer/check.mjs duplex schependomlaan [--port 8771] [--timeout 600]
-```
-
-`check.mjs` drives headless Chrome (WebGL through SwiftShader) over the DevTools protocol with no dependencies, waits for `done` or `failed`, prints the status line, lists console errors, and writes `checkout/screenshot-<model>.png` (git-ignored). It exits 1 on a failure, a console error or a timeout. It needs Node 22 (global `WebSocket`) and Chrome (set `CHROME` if it is not in the usual path). A name ending `.glb` or `.bos` is opened as `?url=/models/cache/<name>`.
+`node scripts/view.mjs --tool bim-open-viewer --model duplex` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
 Logo: `logo.svg` is `docs/brand/viewer-lockup.svg` from https://github.com/ara3d/bim-open-viewer (MIT), used to identify the viewer in the benchmark.

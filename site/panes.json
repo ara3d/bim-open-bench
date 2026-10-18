@@ -1,0 +1,11 @@
+{
+  "_comment": "The viewer panes, in the order the side-by-side page shows them. forms[0] is the form a pane loads by default; the others are its second timings. Read by site/side-by-side.mjs and scripts/view.mjs.",
+  "panes": [
+    { "tool": "bim-open-viewer", "title": "BIM Open Viewer", "forms": ["bos", "glb"] },
+    { "tool": "ifclite", "title": "IFClite", "forms": ["ifc"] },
+    { "tool": "speckle", "title": "Speckle viewer (offline fork)", "forms": ["bos"] },
+    { "tool": "thatopen", "title": "That Open Engine", "forms": ["ifc", "frag"] },
+    { "tool": "xeokit", "title": "xeokit", "forms": ["ifc", "xkt"] },
+    { "tool": "static-gltf", "title": "Static glTF Viewer", "forms": ["glb"] }
+  ]
+}

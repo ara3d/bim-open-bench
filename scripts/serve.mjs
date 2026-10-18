@@ -3,6 +3,9 @@
 //
 //   node scripts/serve.mjs [--port 8765]
 //
+// Other scripts import startServer(port) to serve the same root in-process
+// (scripts/view.mjs does, on a port of its own).
+//
 // Serves Range requests (so large models stream and seek) and sets the
 // cross-origin isolation headers that SharedArrayBuffer needs (WebAssembly
 // threads, WebGPU paths). tools/README.md says what happens to panes that
@@ -70,7 +73,13 @@ async function handle(req, res) {
   createReadStream(path, range).pipe(res);
 }
 
+/** Starts the server; resolves to the listening http.Server (`server.address().port` when port is 0). */
+export function startServer(port) {
+  const server = createServer((req, res) => handle(req, res).catch((e) => { res.writeHead(500).end(String(e)); }));
+  return new Promise((ok, fail) => server.once("error", fail).listen(port, () => ok(server)));
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  createServer((req, res) => handle(req, res).catch((e) => { res.writeHead(500).end(String(e)); }))
-    .listen(port, () => console.log(`serving ${root} at http://localhost:${port}/`));
+  await startServer(port);
+  console.log(`serving ${root} at http://localhost:${port}/`);
 }

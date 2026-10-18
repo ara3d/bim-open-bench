@@ -1,6 +1,6 @@
 # Tools and panes
 
-`tools/<name>/` holds one viewer or parser the bench measures. A tool that needs a build (a third-party repository) has a `tool.json`; each tool with a viewer has a `pane.html` that the side-by-side page puts in an iframe and the automated `view` suite drives with Playwright.
+`tools/<name>/` holds one viewer or parser the bench measures. A tool that needs a build (a third-party repository) has a `tool.json`; each tool with a viewer has a `pane.html` that the side-by-side page puts in an iframe and the `view` suite (`scripts/view.mjs`) drives in headless Chrome.
 
 ## Serving
 
@@ -22,6 +22,15 @@
 ## Opening a pane on its own
 
 `node scripts/serve.mjs`, then `http://localhost:8765/tools/<name>/pane.html?model=duplex` (resolves to `/models/cache/duplex.<ext>`, `ext` being the form the pane reads) or `?url=/models/cache/duplex.glb`. A status line at the top lists each state with its time.
+
+## Checking a pane, and the `view` suite
+
+```
+node scripts/view.mjs --tool thatopen --model duplex [--form frag] [--software] [--timeout 600]
+node scripts/view.mjs                                  every pane, model and form
+```
+
+The runner starts its own server on a free port, opens `site/side-by-side.html` with one pane in a fresh headless Chrome, waits for `done` or `failed`, and records every state message with its time, the file's size and hash, the conversion that made it, the browser, and what WebGL and WebGPU report as the GPU. Chrome draws on the machine's GPU; `--software` puts WebGL and WebGPU on SwiftShader instead, which is slower and is not comparable with a GPU run. Records go to `results/view/<date>.json` (a rerun replaces records with the same tool, model, form and renderer) and `results/view/README.md` is regenerated from the newest file; `--report` regenerates it alone. Screenshots go to `results/view/scratch/` (git-ignored). The exit code is 1 when any load failed or timed out. No packages; Node 22 or later and Chrome at its usual path (`--chrome <path>` or `CHROME` otherwise).
 
 ## The pane contract
 
@@ -53,5 +62,6 @@ Pane to parent:
 1. Make `tools/<name>/`. For a third-party repository, add `tool.json`: `{ "repo": "<git url>", "commit": "<full sha>", "build": "<shell command run in the checkout>" }`. Pin by full commit sha; take it from `git ls-remote`.
 2. `node scripts/tools.mjs <name>` clones to `tools/<name>/checkout/` (git-ignored), checks out the pin, and builds. `node scripts/tools.mjs <name> --check` compares the checkout with the pin.
 3. Write `pane.html` and `pane.mjs` using `createPane` from `../pane.mjs`, and a README that says what the viewer is, how the pane drives it, and what it cannot report.
-4. A pane built with Vite (every pane but static-gltf) bundles `tools/pane.mjs` into `dist/`, so a change to the shared module needs `node scripts/tools.mjs` to rebuild the panes. Commit `package-lock.json` so `npm ci` works. Set `build.assetsInlineLimit: 0` in the Vite config, or a WASM file ends up inlined as base64. Under the isolation headers web-ifc picks its threaded build and its workers fail inside a bundle; the That Open pane forces single-thread and says so. Chrome's headless mode needs `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader` for a WebGPU pane (IFClite); without WebGPU that pane reports `failed`, since the renderer has no WebGL fallback.
-5. Change no tool's source. The bench runs each tool as its authors ship it; a changed setting is written in the pane with the reason.
+4. A pane built with Vite (every pane but static-gltf) bundles `tools/pane.mjs` into `dist/`, so a change to the shared module needs `node scripts/tools.mjs` to rebuild the panes. Commit `package-lock.json` so `npm ci` works. Set `build.assetsInlineLimit: 0` in the Vite config, or a WASM file ends up inlined as base64. Under the isolation headers web-ifc picks its threaded build and its workers fail inside a bundle; the That Open pane forces single-thread and says so. The runner starts Chrome with `--enable-unsafe-webgpu`, which a WebGPU pane (IFClite) needs in headless mode; without WebGPU that pane reports `failed`, since the renderer has no WebGL fallback.
+5. Add the tool to `site/panes.json` with the forms it reads, first the one it loads by default; the side-by-side page and the runner both read that file.
+6. Change no tool's source. The bench runs each tool as its authors ship it; a changed setting is written in the pane with the reason.

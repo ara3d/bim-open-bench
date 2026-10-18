@@ -21,4 +21,4 @@ Static glTF Viewer ([EverseDevelopment/Static.glTF.Viewer](https://github.com/Ev
 - Fetch and parse as separate costs inside the viewer: `parsing` begins at response end and the next event is the finished scene.
 - The true first draw: the pane infers it from the spinner and one animation frame. If the pane is hidden or in a background tab the browser pauses animation frames, so `first-frame` waits until the pane is visible.
 - A load error that the viewer logs but does not pass through `alert` or `console.error`.
-- Memory or frame rate: those belong to the Playwright-driven `view` suite.
+- Memory or frame rate: the `view` suite does not measure them yet.

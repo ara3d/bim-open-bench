@@ -5,11 +5,15 @@
   "description": "Reproducible benchmarks for IFC parsers, viewers, and AI agents, on public building models with known answers",
   "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=20.0.0" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "fetch": "node scripts/fetch.mjs",
     "convert": "node scripts/convert.mjs",
     "tools": "node scripts/tools.mjs",
-    "serve": "node scripts/serve.mjs"
+    "serve": "node scripts/serve.mjs",
+    "view": "node scripts/view.mjs",
+    "test": "node --test tools/pane.test.mjs"
   }
 }

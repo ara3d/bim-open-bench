@@ -44,13 +44,13 @@ On `.ifc` the time from `parsing` to `first-frame` covers web-ifc's geometry str
 
 `scripts/converters/frag.mjs` runs `node tools/thatopen/to-frag.mjs <in.ifc> <out.frag>`, which uses `IfcImporter` from `@thatopen/fragments` in Node with its defaults. Run `node scripts/tools.mjs thatopen` first so `node_modules` exists. `node scripts/convert.mjs --form frag` converts the corpus.
 
-## Check script
+## Checking it
 
-`node tools/thatopen/check.mjs <model-or-path> [--port 8772] [--timeout 600] [--verbose]` opens the pane in headless Chrome (WebGL through SwiftShader, so slower than a GPU), waits for `done` or `failed`, prints the status line and any console errors, and saves a screenshot to `results/thatopen/scratch/` (git-ignored). Start `node scripts/serve.mjs --port 8772` first. Examples: `check.mjs duplex`, `check.mjs models/cache/duplex.frag`. It needs Node 22 (global `WebSocket`).
+`node scripts/view.mjs --tool thatopen --model duplex --form frag` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
 ## What it cannot report
 
 - The renderer's true first draw of the model, and whether tiles are still streaming at `done`.
 - Bytes while fetching, and parse time apart from conversion time inside `IfcLoader`.
-- Memory and frame rate: those belong to the Playwright-driven `view` suite.
+- Memory and frame rate: the `view` suite does not measure them yet.
 - Multi-threaded web-ifc timing (see above).

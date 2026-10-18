@@ -4,10 +4,10 @@
 
 ```
 node scripts/fetch.mjs      # download the IFC files; verify size, SHA-256, and schema
-node scripts/convert.mjs    # make a .glb for each, with IfcConvert at a pinned release
+node scripts/convert.mjs    # make the .glb, .bos, .frag and .xkt forms of each, timing each conversion
 ```
 
-Node 20 or later, no packages to install. Attribution is in [NOTICE.md](NOTICE.md).
+Node 20 or later, no packages to install for the fetch and the `.glb` form; the other forms need the converters that `node scripts/tools.mjs` builds. Attribution is in [NOTICE.md](NOTICE.md).
 
 ## Commands
 
@@ -16,7 +16,7 @@ Node 20 or later, no packages to install. Attribution is in [NOTICE.md](NOTICE.m
 
 ## What the cache holds
 
-For model `<id>`: `<id>.ifc`, `<id>.glb`, and `<id>.glb.json`, the conversion record: `tool`, `version`, `build` (the tool's own banner), `seconds` (wall time of the conversion alone), `bytes`, `sha256`. The side-by-side page shows the seconds beside load time. Sizes and times from the first run (Windows, IfcConvert 0.9.0, default settings): duplex 4 s, 1.0 MB; Schependomlaan 140 s, 15.7 MB; Sixty5 301 s, 68.3 MB.
+For model `<id>`: `<id>.ifc`, then one `<id>.<form>` per form (`glb` by IfcConvert, `bos` by the toolkit's `ifc-to-bos`, `frag` by That Open's `IfcImporter`, `xkt` by xeokit's `convert2xkt`) with `<id>.<form>.json` beside it, the conversion record: `tool`, `version`, `build` (the tool's own banner), `seconds` (wall time of the conversion alone), `bytes`, `sha256`. The side-by-side page and the view suite show the seconds beside load time.
 
 ## Manifest fields
 

@@ -47,8 +47,9 @@ All in `pane.mjs` and `vite.config.mjs`, with reasons beside them.
 - `parsing` for `.ifc` is when the file has arrived, not when the parse starts or ends. The plugin parses and builds the scene in one synchronous call, so no event separates web-ifc's work from xeokit's.
 - Anything before the pane starts its clock: loading `pane.js` (1.5 MB) and the web-ifc script.
 - The true first draw: `first-frame` is the first `rendered` event after `loaded`. With the pane hidden or in a background tab the browser pauses frames and the state waits.
-- Memory and frame rate: those belong to the Playwright-driven `view` suite.
+- Memory and frame rate: the `view` suite does not measure them yet.
 
 ## Checking it
 
-`node tools/xeokit/check.mjs --model duplex` (or `--url /models/cache/duplex.xkt`; in Git Bash set `MSYS_NO_PATHCONV=1` so the leading slash survives) opens the pane in headless Chrome with software WebGL (SwiftShader), prints the status line and any console errors, and saves a screenshot to `results/scratch/` (git-ignored). It needs `node scripts/serve.mjs --port 8773` running. Software rendering and a busy machine make the times slower and noisier than a desktop GPU's.
+`node scripts/view.mjs --tool xeokit --model duplex --form xkt` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
+

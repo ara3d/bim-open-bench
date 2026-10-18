@@ -22,24 +22,16 @@ This pane runs the Speckle viewer's engine through an offline fork, [bim-open-we
 
 `first-frame` and `done` carry a `phases` object (also written to `document.body.dataset.phases`). Times are milliseconds since the load began. `fetchedAt`, `decodedAt`, `traversedAt`, `convertedAt`, `firstBatchAt`, `batchedAt` are marks (the last `Traversed` and `Converted` loader events; `Converted` fires only every 1,000 nodes, so it is absent on a model smaller than that). `traverseMs`, `renderTreeMs`, and `batcher` (a time for each step the batcher logs) come from the fork's own timing log in `globalThis.__phases`, which is a debug aid, not an API. `instances`, `meshes`, `nodes`, `objects`, `drawCalls`, `triangles` are counts.
 
-## Observed, 2026-10-12, headless Chrome with SwiftShader (software WebGL), no GPU
+## Measurements
 
-`node tools/speckle/check.mjs duplex schependomlaan sixty5` reached `done` on all three, the model visible, no console errors. Milliseconds since the load began; the machine was running other agents' builds, so the same model's times moved by a factor of two to ten between runs. Two runs of each are shown as a range.
-
-| Model | Instances / meshes | Decode finished | First frame | Done (batched) | Draw calls | Triangles |
-|---|---|---|---|---|---|---|
-| Duplex (85 KB) | 660 / 435 | 1.7 to 3.7 s | 3.3 to 7.5 s | 3.3 to 7.4 s | 20 | 26,774 |
-| Schependomlaan (968 KB) | 5,972 / 4,702 | 1.4 to 2.6 s | 3.0 to 5.8 s | 3.8 to 15.5 s | 60 | 261,503 |
-| Sixty5 (2.5 MB) | 40,740 / 20,382 | 3.8 s (one run) | 10.1 s | 143 s | 90 | 1,621,181 |
-
-The fork's own log splits the quiet Duplex run into 11 ms for the tree, 26 ms for the render tree, and 64 ms for batching; on Sixty5 the "mesh batches" step alone took 46 s. The first frame is early because the viewer draws each batch as it is built; `done` is when the last batch is in. Do not compare these with other panes unless they ran the same way.
+`results/view/README.md` holds the times from the view suite. The `phases` object on the `first-frame` and `done` messages (kept in the result file) carries the fork's own split: on the Duplex, 11 ms for the tree, 26 ms for the render tree, and 64 ms for batching; on Sixty5 the "mesh batches" step alone took 46 s in a software-rendered run. The first frame comes early because the viewer draws each batch as it is built; `done` is when the last batch is in.
 
 ## What the pane cannot observe
 
 - Bytes while fetching: `bytes` is the size once the body is in.
 - The Parquet decode is separate from the fetch only by the mark `decodedAt`; it is one `parsing` period in the state line.
 - The true first draw (see `first-frame` above), and the per-batch draws after it. A hidden tab pauses animation frames, so `first-frame` waits until the pane is visible.
-- Memory and frame rate: those belong to the Playwright `view` suite.
+- Memory and frame rate: the `view` suite does not measure them yet.
 
 ## The Speckle object path is not used
 
@@ -47,8 +39,8 @@ The fork also loads Speckle objects: `tools/bos-to-speckle.mjs` in the fork turn
 
 Whether that is fair to Speckle stays open. The README's question is whether Speckle objects made ahead (the form a Speckle server stores) should be the input, with the conversion timed beside the load, like the GLB conversions for the other viewers. Running both on the Duplex with timings that mean anything needs a quiet machine and a second pane variant (a `.speckle.json` input and `SpeckleOfflineLoader`); that was not done here. The load phases above would be the "BOS path" half of the answer.
 
-## Checking
+## Checking it
 
-`node scripts/serve.mjs --port 8775`, then `node tools/speckle/check.mjs [model ...] [--port 8775] [--timeout 300]`. The script starts headless Chrome, opens `pane.html?model=<model>`, waits for `done` or `failed`, prints the status line and phases, and saves `results/scratch/speckle-<model>.png` (git-ignored). It exits 1 on a failure, a console error, or a canvas with one flat colour. It needs Node 22 (global `WebSocket`) and Chrome (`CHROME` overrides the path).
+`node scripts/view.mjs --tool speckle --model duplex` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
 Logo: `logo.png` is https://github.com/specklesystems/speckle-server/blob/main/packages/frontend-2/public/images/logo.png (repository Apache-2.0; the mark belongs to Speckle Systems), used to identify the viewer in the benchmark; the word "fork" beside it says the pane runs the bim-open-web-viewer fork, not Speckle's release.

@@ -32,7 +32,7 @@ Default settings are used: medium tessellation, no section plane, the default co
 
 ## Observed and inferred
 
-- Observed: `fetching` and `parsing` (the pane's own fetch); `first-frame` and `done` are after the pane's own frame loop called `render()`, so "drawn" means the draw call was issued, not that the GPU has finished. The screenshot from `check.mjs` shows pixels.
+- Observed: `fetching` and `parsing` (the pane's own fetch); `first-frame` and `done` are after the pane's own frame loop called `render()`, so "drawn" means the draw call was issued, not that the GPU has finished. The screenshot from `scripts/view.mjs` shows pixels.
 - Inferred: that the first batch is a usable picture. The first batch may hold only a few meshes; the Duplex screenshot after `done` shows the whole model.
 - Not observable: how much of the time between `parsing` and `first-frame` is wasm load, shader compilation, parsing, or geometry (they are inside one library call), and per-element parse time. The wasm initialisation is counted in this interval, once per page.
 - The first batch arrives only after the renderer and the geometry processor have both initialised, so `first-frame` includes a one-time startup that a second `load` message does not pay.
@@ -44,34 +44,19 @@ The question in the repository README: does IFClite's renderer fall back to WebG
 - Read: no. `@ifc-lite/renderer` 6.0.1, `device.js`, `init()`: `if (!navigator.gpu) throw new Error('WebGPU not available')`, then `requestAdapter()`, and `Failed to get GPU adapter` when that returns null. There is no WebGL context code in the package (the "WebGL" strings are comments about the Y-up axis convention). The pane then reports `failed` with that message.
 - Tested, headless Chrome (Chrome 2026-10, Windows 11):
   - `--enable-unsafe-webgpu` alone: `requestAdapter()` did not resolve within 8 seconds, so the pane would sit in `parsing`.
-  - `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader`: works; the adapter is Google SwiftShader (software). The Duplex reaches `done` and the screenshot shows the model. This is what `check.mjs` is run with.
+  - `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader`: works; the adapter is Google SwiftShader (software). The Duplex reaches `done` and the screenshot shows the model. This is what `scripts/view.mjs --software` runs with.
   - Default flags and `--enable-features=Vulkan --use-angle=swiftshader` gave no `navigator.gpu` in the probe, but the probe may have run before the page loaded, so those two are inconclusive.
-- A headed Chrome with a real GPU was not tried; WebGPU is on by default there.
-- So a headless run of the `view` suite needs `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader`, and its timings are software-rendered, not comparable with a GPU run. Machines without WebGPU cannot run this pane at all.
+- `--enable-unsafe-webgpu --ignore-gpu-blocklist` with a discrete GPU (tested 2026-10-17, headless Chrome 155, RTX 4070 Laptop): works; the adapter is the GPU (vendor nvidia, architecture lovelace) and all three models reach `done`. This is what `scripts/view.mjs` runs with by default.
+- Machines without WebGPU cannot run this pane at all.
 
 ## Isolation headers
 
 The server sends `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`, and `crossOriginIsolated` is true in the page. IFClite's geometry code uses a `SharedArrayBuffer` when it exists (`geometry-parallel.js` checks `typeof SharedArrayBuffer`). Whether it works without the headers was not tested here, so "needed" is not claimed.
 
-## Checking
+## Checking it
 
-```
-node scripts/serve.mjs --port 8774
-node tools/ifclite/check.mjs duplex --flag=--enable-unsafe-webgpu --flag=--use-webgpu-adapter=swiftshader
-```
+`node scripts/view.mjs --tool ifclite --model duplex` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
-`check.mjs` starts Chrome with a throwaway profile, opens `pane.html?model=<id>`, waits for `done` or `failed`, prints the status line and any console errors, and writes a PNG to the system temp folder (`--out` changes it). `--headed` shows the window. It needs Node 22. Exit code 0 means `done` and no console errors.
-
-## Results
-
-Run on 2026-10-11 with headless Chrome, SwiftShader (software WebGPU), while other builds kept the CPU at 100 percent and a 49 MB local fetch took about 50 seconds. Times are therefore far slower than a normal machine and only show the order of the states.
-
-| Model | Size | parsing | first-frame | done | Screenshot |
-|---|---|---|---|---|---|
-| duplex | 2.4 MB | 4.4 s | 64.4 s | 68.9 s | whole building visible, no console errors |
-| schependomlaan | 49 MB | 26.5 s | 186.1 s | 198.6 s | whole building visible, no console errors |
-| sixty5 | 343 MB | not completed | | | the page did not open within 1500 s (WebGPU absent, no status line); the cause was not found, probably the overloaded machine |
-
-An earlier Duplex run (28 MB bundle with the wasm inlined) took 61.7 s to `done`, and before the frame loop was added it reported `done` over an empty canvas, which is why `done` waits for a drawn frame.
+Before the frame loop was added the pane reported `done` over an empty canvas, which is why `done` waits for a drawn frame.
 
 Logo: `logo.png` is https://github.com/LTplus-AG/ifc-lite/blob/main/apps/viewer/public/favicon-96x96-cropped.png (repository MPL-2.0; the mark belongs to LTplus AG), used to identify the viewer in the benchmark. The full `docs/assets/logo.png` there is 1.3 MB, too large for a pane.
