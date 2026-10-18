@@ -1142,6 +1142,363 @@
       ],
       "consoleErrors": [],
       "at": "2026-10-18T02:54:57.573Z"
+    },
+    {
+      "tool": "xeokit",
+      "version": "2.6.114, web-ifc 0.0.51",
+      "model": "sixty5",
+      "modelSha256": "e91ddbbd672bbde946af14631de4c732f0cf8a7cfae5dbbf06fbeab03b5c46df",
+      "form": "ifc",
+      "fileBytes": 342657851,
+      "fileSha256": "e91ddbbd672bbde946af14631de4c732f0cf8a7cfae5dbbf06fbeab03b5c46df",
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "timeout",
+      "message": "no done or failed within 600 s",
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.5300002098083496
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T02:56:07.865Z"
+    },
+    {
+      "tool": "xeokit",
+      "version": "2.6.114, web-ifc 0.0.51",
+      "model": "duplex",
+      "modelSha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+      "form": "xkt",
+      "fileBytes": 1006972,
+      "fileSha256": "cb03ec468df586e4943e0e38eed81efa8adc80aef2f7635cf64449dfd372e2e9",
+      "conversion": {
+        "tool": "@xeokit/xeokit-convert convert2xkt",
+        "version": "1.3.2",
+        "seconds": 14.72
+      },
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "done",
+      "parsingMs": 112,
+      "firstFrameMs": 415,
+      "doneMs": 416,
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.4249999523162842
+        },
+        {
+          "state": "parsing",
+          "t": 112.43499994277954,
+          "bytes": 1006972
+        },
+        {
+          "state": "first-frame",
+          "t": 415.43499994277954
+        },
+        {
+          "state": "done",
+          "t": 415.7149999141693
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T03:08:39.025Z"
+    },
+    {
+      "tool": "xeokit",
+      "version": "2.6.114, web-ifc 0.0.51",
+      "model": "schependomlaan",
+      "modelSha256": "2c3565ca1904f2aa61adab92024cf3755b2c5b21a498144d3094d7cb58cebec7",
+      "form": "xkt",
+      "fileBytes": 15948908,
+      "fileSha256": "728151f0d90bdf561737bc811e49cd2314708d4091adaa1426dd0e3cc5a4ea0d",
+      "conversion": {
+        "tool": "@xeokit/xeokit-convert convert2xkt",
+        "version": "1.3.2",
+        "seconds": 62.03
+      },
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "done",
+      "parsingMs": 220,
+      "firstFrameMs": 731,
+      "doneMs": 732,
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.40000009536743164
+        },
+        {
+          "state": "parsing",
+          "t": 219.72500014305115,
+          "bytes": 15948908
+        },
+        {
+          "state": "first-frame",
+          "t": 731.4000000953674
+        },
+        {
+          "state": "done",
+          "t": 731.8900001049042
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T03:08:44.004Z"
+    },
+    {
+      "tool": "xeokit",
+      "version": "2.6.114, web-ifc 0.0.51",
+      "model": "sixty5",
+      "modelSha256": "e91ddbbd672bbde946af14631de4c732f0cf8a7cfae5dbbf06fbeab03b5c46df",
+      "form": "xkt",
+      "fileBytes": 121663532,
+      "fileSha256": "acaec97509212419cbf875cada0e07414947af16dd186160275db21aa0629c5e",
+      "conversion": {
+        "tool": "@xeokit/xeokit-convert convert2xkt",
+        "version": "1.3.2",
+        "seconds": 539.42
+      },
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "done",
+      "parsingMs": 849,
+      "firstFrameMs": 2913,
+      "doneMs": 2914,
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.36500000953674316
+        },
+        {
+          "state": "parsing",
+          "t": 849.4949998855591,
+          "bytes": 121663532
+        },
+        {
+          "state": "first-frame",
+          "t": 2913.2300000190735
+        },
+        {
+          "state": "done",
+          "t": 2913.8849999904633
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T03:08:49.475Z"
+    },
+    {
+      "tool": "static-gltf",
+      "version": "1.5.1 @ 4089240, three ^0.160.0",
+      "model": "duplex",
+      "modelSha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
+      "form": "glb",
+      "fileBytes": 1020996,
+      "fileSha256": "d47f16a2d661e5623e15e938b33c2ac6e96682d90002f47c4270c8ecf4044b16",
+      "conversion": {
+        "tool": "IfcConvert",
+        "version": "0.9.0",
+        "seconds": 4.17
+      },
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "done",
+      "parsingMs": 741,
+      "firstFrameMs": 1226,
+      "doneMs": 1227,
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.20000004768371582
+        },
+        {
+          "state": "parsing",
+          "t": 741.4949998855591,
+          "bytes": 1020996
+        },
+        {
+          "state": "first-frame",
+          "t": 1226.4849998950958,
+          "bytes": 1020996
+        },
+        {
+          "state": "done",
+          "t": 1226.6549999713898,
+          "bytes": 1020996
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T03:08:56.926Z"
+    },
+    {
+      "tool": "static-gltf",
+      "version": "1.5.1 @ 4089240, three ^0.160.0",
+      "model": "schependomlaan",
+      "modelSha256": "2c3565ca1904f2aa61adab92024cf3755b2c5b21a498144d3094d7cb58cebec7",
+      "form": "glb",
+      "fileBytes": 15741928,
+      "fileSha256": "7457d62805e11be4550bc50e876ebd5ce10de94edf7a2097dfce065d1a7572b1",
+      "conversion": {
+        "tool": "IfcConvert",
+        "version": "0.9.0",
+        "seconds": 139.57
+      },
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "done",
+      "parsingMs": 2439,
+      "firstFrameMs": 2561,
+      "doneMs": 2562,
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.17500019073486328
+        },
+        {
+          "state": "parsing",
+          "t": 2439.340000152588,
+          "bytes": 15741928
+        },
+        {
+          "state": "first-frame",
+          "t": 2561.3600001335144,
+          "bytes": 15741928
+        },
+        {
+          "state": "done",
+          "t": 2561.5,
+          "bytes": 15741928
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T03:09:02.445Z"
+    },
+    {
+      "tool": "static-gltf",
+      "version": "1.5.1 @ 4089240, three ^0.160.0",
+      "model": "sixty5",
+      "modelSha256": "e91ddbbd672bbde946af14631de4c732f0cf8a7cfae5dbbf06fbeab03b5c46df",
+      "form": "glb",
+      "fileBytes": 68309436,
+      "fileSha256": "d0664837de402abea783f3e2a18ba1b59d97411ce1ae58934cd7a95992d38b70",
+      "conversion": {
+        "tool": "IfcConvert",
+        "version": "0.9.0",
+        "seconds": 301.12
+      },
+      "renderer": "hardware",
+      "gpu": {
+        "webgl": {
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "vendor": "Google Inc. (NVIDIA)"
+        },
+        "webgpu": {
+          "vendor": "nvidia",
+          "architecture": "lovelace",
+          "device": "",
+          "description": ""
+        }
+      },
+      "browser": "Chrome/155.0.8059.40",
+      "outcome": "done",
+      "parsingMs": 1137,
+      "firstFrameMs": 9869,
+      "doneMs": 9869,
+      "states": [
+        {
+          "state": "fetching",
+          "t": 0.1700000762939453
+        },
+        {
+          "state": "parsing",
+          "t": 1137.215000152588,
+          "bytes": 68309436
+        },
+        {
+          "state": "first-frame",
+          "t": 9868.670000076294,
+          "bytes": 68309436
+        },
+        {
+          "state": "done",
+          "t": 9868.875,
+          "bytes": 68309436
+        }
+      ],
+      "consoleErrors": [],
+      "at": "2026-10-18T03:09:11.283Z"
     }
   ],
   "machine": {
@@ -1152,5 +1509,5 @@
     "node": "v22.13.1"
   },
   "browser": "Chrome/155.0.8059.40",
-  "updated": "2026-10-18T02:54:57.573Z"
+  "updated": "2026-10-18T03:09:11.283Z"
 }
