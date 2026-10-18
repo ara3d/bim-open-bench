@@ -1,7 +1,11 @@
 // The side-by-side page: one model, one pane per viewer, each an iframe speaking the
 // contract in tools/README.md. This page owns the layout, the model picker, the
 // Load button, and one status line per pane. It reads nothing but
-// /models/manifest.json and the conversion records /models/cache/<id>.<ext>.json.
+// ../models/manifest.json and the conversion records <id>.<ext>.json beside each file.
+//
+// Where the files come from: ../models/cache/ when the page is served from a checkout
+// (scripts/serve.mjs); otherwise, on GitHub Pages, the release assets named by the
+// manifest's `release.baseUrl`, which hold the same files under the same names.
 //
 // Query parameters:
 //   ?model=<id>              preselect a model
@@ -45,7 +49,7 @@ function makePane(spec) {
       <span class="num bytes"></span>
       <span class="message"></span>
     </div>
-    <iframe title="${spec.title}" src="/tools/${spec.tool}/pane.html"></iframe>`;
+    <iframe title="${spec.title}" src="../tools/${spec.tool}/pane.html"></iframe>`;
   const pane = {
     ...spec, el, ready: false, version: "", states: [], model: "", form: spec.forms[0],
     iframe: el.querySelector("iframe"),
@@ -57,7 +61,8 @@ function makePane(spec) {
     pane.form = pick.value;
     pick.addEventListener("change", () => { pane.form = pick.value; });
   }
-  pane.iframe.addEventListener("load", () => { if (!pane.ready) pane.fields.version.textContent = "ready?"; });
+  // A pane whose bundle was not built (tools/<name>/dist/ is git-ignored) loads its page and never says ready.
+  pane.iframe.addEventListener("load", () => setTimeout(() => { if (!pane.ready) pane.fields.version.textContent = "no pane bundle on this host"; }, 4000));
   return pane;
 }
 
@@ -73,7 +78,7 @@ const recordOf = (pane) => window.benchResults.find((r) => r.tool === pane.tool)
 async function describeForm(pane, modelId) {
   if (pane.form === "ifc") return "the IFC itself";
   try {
-    const r = await fetch(`/models/cache/${modelId}.${pane.form}.json`);
+    const r = await fetch(`${fileUrl(modelId, pane.form)}.json`);
     if (!r.ok) return "(no conversion record)";
     const rec = await r.json();
     recordOf(pane).conversion = { tool: rec.tool, version: rec.version, seconds: rec.seconds, bytes: rec.bytes, sha256: rec.sha256 };
@@ -130,7 +135,7 @@ async function load() {
   }
   // One instant for every pane: the message is posted in one synchronous loop.
   for (const pane of panes) {
-    if (pane.ready) pane.iframe.contentWindow.postMessage({ type: "load", model: id, url: `/models/cache/${id}.${pane.form}` }, "*");
+    if (pane.ready) pane.iframe.contentWindow.postMessage({ type: "load", model: id, url: new URL(fileUrl(id, pane.form), location.href).href }, "*");
   }
 }
 
@@ -163,7 +168,14 @@ copyButton.addEventListener("click", async () => {
 loadButton.addEventListener("click", load);
 select.addEventListener("change", maybeEnable);
 
-const manifest = await fetch("/models/manifest.json").then((r) => r.json());
+const manifest = await fetch("../models/manifest.json").then((r) => r.json());
+// Local cache when it is there, else the release assets; the note says which, so a slow load is explained.
+const local = await fetch(`../models/cache/${manifest.models[0].id}.ifc`, { method: "HEAD" }).then((r) => r.ok).catch(() => false);
+const base = local ? "../models/cache" : manifest.release?.baseUrl;
+function fileUrl(id, form) { return `${base}/${id}.${form}`; }
+if (!local) document.getElementById("note").textContent = base
+  ? `Models come from the release assets at ${base}, not a local cache, so fetch time includes the download.`
+  : "No local model cache and no release assets named in the manifest: nothing can load here.";
 for (const model of manifest.models) {
   const option = document.createElement("option");
   option.value = model.id;

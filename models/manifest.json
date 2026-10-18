@@ -47,6 +47,10 @@
       "facts": {}
     }
   ],
+  "release": {
+    "_comment": "Where the side-by-side page finds the files when it is not served from a checkout (GitHub Pages): every <id>.<form> and <id>.<form>.json from models/cache/, uploaded as assets of this release. TKT-319 in bim-open-toolkit creates it.",
+    "baseUrl": "https://github.com/ara3d/bim-open-bench/releases/download/models-2026-10-11"
+  },
   "tools": {
     "ifcconvert": {
       "version": "0.9.0",

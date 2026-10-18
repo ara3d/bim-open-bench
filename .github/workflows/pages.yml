@@ -1,0 +1,74 @@
+# Publishes the side-by-side page, the pane bundles it can build, and the view-suite results to
+# GitHub Pages. Pages must be switched on with source "GitHub Actions" in the repository settings.
+#
+# What is built here: the four panes that are npm packages or a public repository (IFClite, That
+# Open, xeokit, Static glTF Viewer) and BIM Open Viewer from source. The Speckle pane is skipped
+# while tools/speckle/tool.json pins a local path (TKT-275 in bim-open-toolkit); its pane shows
+# "no pane bundle on this host". Models come from the release assets named by
+# models/manifest.json `release.baseUrl` (TKT-319), since the cache is never committed.
+# GitHub Pages sends no cross-origin isolation headers, so panes that need them may fail there;
+# the checkout served by scripts/serve.mjs is the reference.
+name: pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the npm and public-repository panes
+        run: |
+          for t in ifclite thatopen xeokit static-gltf; do
+            node scripts/tools.mjs "$t" || echo "::warning::$t did not build; its pane will say so"
+          done
+      - name: Build BIM Open Viewer from source
+        timeout-minutes: 40
+        continue-on-error: true
+        run: node scripts/tools.mjs bim-open-viewer
+      - name: Assemble the site
+        run: |
+          set -e
+          out=_site
+          mkdir -p "$out/site" "$out/models" "$out/results" "$out/brand" "$out/tools"
+          cp site/*.html site/*.mjs site/*.json "$out/site/"
+          cp models/manifest.json models/README.md models/NOTICE.md "$out/models/"
+          cp -r brand/. "$out/brand/"
+          cp -r results/. "$out/results/"; rm -rf "$out"/results/*/scratch "$out"/results/scratch
+          cp tools/pane.mjs tools/README.md "$out/tools/"
+          for d in tools/*/; do
+            name=$(basename "$d")
+            [ -f "$d/pane.html" ] || continue
+            mkdir -p "$out/tools/$name"
+            cp "$d"/pane.html "$out/tools/$name/"
+            for f in pane.mjs tool.json logo.svg logo.png README.md; do [ -f "$d/$f" ] && cp "$d/$f" "$out/tools/$name/"; done
+            [ -d "$d/dist" ] && cp -r "$d/dist" "$out/tools/$name/dist"
+            # Static glTF Viewer's pane loads the viewer's own built page and reads its package.json for the version.
+            if [ -d "$d/checkout/dist" ]; then mkdir -p "$out/tools/$name/checkout"; cp -r "$d/checkout/dist" "$out/tools/$name/checkout/dist"; cp "$d/checkout/package.json" "$out/tools/$name/checkout/"; fi
+          done
+          cp README.md "$out/"
+          touch "$out/.nojekyll"
+          du -sh "$out"; find "$out" -maxdepth 3 -type d | sort
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

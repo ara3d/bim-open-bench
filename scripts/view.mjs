@@ -244,5 +244,45 @@ function writeReport() {
   }
   mkdirSync(resultsDir, { recursive: true });
   writeFileSync(join(resultsDir, "README.md"), lines.join("\n"));
-  console.log(`wrote ${join(resultsDir, "README.md")}`);
+  writeFileSync(join(resultsDir, "index.html"), htmlOf(lines));
+  console.log(`wrote ${join(resultsDir, "README.md")} and index.html`);
+}
+
+// The same report as a page, for GitHub Pages, which does not render Markdown: headings, paragraphs, tables, inline code.
+function htmlOf(lines) {
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inline = (t) => esc(t).replace(/`([^`]+)`/g, "<code>$1</code>");
+  const body = [];
+  let table = [];
+  const flush = () => {
+    if (table.length === 0) return;
+    const rows = table.filter((r) => !/^\|[-| ]+\|$/.test(r)).map((r) => r.slice(1, -1).split("|").map((c) => c.trim()));
+    body.push("<table>", `<tr>${rows[0].map((c) => `<th>${inline(c)}</th>`).join("")}</tr>`, ...rows.slice(1).map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`), "</table>");
+    table = [];
+  };
+  for (const line of lines) {
+    if (line.startsWith("|")) { table.push(line); continue; }
+    flush();
+    if (line.startsWith("# ")) body.push(`<h1>${inline(line.slice(2))}</h1>`);
+    else if (line.startsWith("## ")) body.push(`<h2>${inline(line.slice(3))}</h2>`);
+    else if (line.trim()) body.push(`<p>${inline(line)}</p>`);
+  }
+  flush();
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>View suite results</title>
+<style>
+  :root { --text: #171a1f; --dim: #5a606c; --bg: #f4f5f7; --surface: #fff; --border: #e3e6ea; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --text: #e8e9ec; --dim: #9aa0ab; --bg: #141518; --surface: #1d1f24; --border: #2c2f36; } }
+  :root[data-theme="dark"] { --text: #e8e9ec; --dim: #9aa0ab; --bg: #141518; --surface: #1d1f24; --border: #2c2f36; }
+  body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 1200px; margin: 0 auto; } h1 { font-size: 22px; } h2 { font-size: 17px; margin-top: 28px; }
+  p { max-width: 80ch; } code { font: 12px "Fira Code", Consolas, monospace; }
+  table { border-collapse: collapse; background: var(--surface); display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; white-space: nowrap; font-size: 13px; }
+  th { color: var(--dim); font-weight: 600; }
+</style></head><body><main>
+<p><a href="../../site/index.html">BIM Open Bench</a></p>
+${body.join("\n")}
+</main></body></html>
+`;
 }

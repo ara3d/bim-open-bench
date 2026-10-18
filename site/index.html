@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIM Open Bench</title>
+<meta name="description" content="Reproducible benchmarks for IFC viewers, parsers, and AI agents, on public building models.">
+<style>
+  :root { --accent: #3b3f47; --text: #171a1f; --dim: #5a606c; --surface: #ffffff; --bg: #f4f5f7; --border: #e3e6ea; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --text: #e8e9ec; --dim: #9aa0ab; --surface: #1d1f24; --bg: #141518; --border: #2c2f36; } }
+  :root[data-theme="dark"] { --text: #e8e9ec; --dim: #9aa0ab; --surface: #1d1f24; --bg: #141518; --border: #2c2f36; }
+  body { margin: 0; padding: 32px 16px; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h1 .family { font-weight: 600; color: var(--dim); margin-right: 4px; }
+  p.lead { color: var(--dim); margin: 0 0 24px; }
+  a { color: var(--accent); }
+  ul { padding-left: 20px; }
+  li { margin: 8px 0; }
+  .dim { color: var(--dim); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1><span class="family">BIM Open</span>Bench</h1>
+  <p class="lead">Reproducible benchmarks for IFC viewers, parsers, and AI agents, on public building models with known answers.</p>
+  <ul>
+    <li><a href="side-by-side.html?model=duplex">Side by side</a>: one model opened in six viewers at once, each pane the same size, with the time each took. <span class="dim">Press Load; pick a larger model from the list.</span></li>
+    <li><a href="../results/view/index.html">View suite results</a>: first frame and done times per viewer, model, and form, with the machine, browser, and GPU that produced them.</li>
+    <li><a href="https://github.com/ara3d/bim-open-bench">The repository</a>: the corpus, the panes, the runner, and how to rerun everything on your own machine.</li>
+  </ul>
+</main>
+</body>
+</html>

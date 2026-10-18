@@ -4,7 +4,7 @@
 
 ## Serving
 
-`node scripts/serve.mjs [--port 8765]` serves the repository root, with Range requests and the headers `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`, so panes that need SharedArrayBuffer (web-ifc threads, IFClite's WebGPU path) can run. Static glTF Viewer still loads under them (checked 2026-10-11 in Chrome). The server also sends `Cross-Origin-Resource-Policy: same-origin`. Consequence for later panes: under `require-corp`, anything loaded from another origin (a CDN script, Google Fonts) is blocked unless that origin sends CORP or CORS headers, so panes must load every resource from the repository.
+`node scripts/serve.mjs [--port 8765]` serves the repository root, with Range requests and the headers `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`, so panes that need SharedArrayBuffer (web-ifc threads, IFClite's WebGPU path) can run. Static glTF Viewer still loads under them (checked 2026-10-11 in Chrome). The server also sends `Cross-Origin-Resource-Policy: same-origin`. Consequence for later panes: under `require-corp`, anything loaded from another origin (a CDN script, Google Fonts) is blocked unless that origin sends CORP or CORS headers, so panes must load every resource from the repository. GitHub Pages sends none of these headers, so a pane that needs isolation may fail on the published copy while it works from the checkout; say which in the pane's README once known.
 
 ## The six panes
 

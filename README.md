@@ -27,6 +27,10 @@ npm run view         # the view suite: every pane, every model, every form; then
 
 One pin is not yet public: the Speckle fork (`tools/speckle/tool.json`) points at a local path until it is pushed (TKT-275 in bim-open-toolkit), so a fresh clone builds five of the six panes.
 
+## The published page
+
+`.github/workflows/pages.yml` publishes `site/`, the pane bundles it can build, and the results to GitHub Pages on every push to `main`: `https://ara3d.github.io/bim-open-bench/` once Pages is switched on with source "GitHub Actions" (TKT-142). The models there come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319); until they do, the published page shows the panes and can load nothing. The workflow builds every pane but Speckle's (its pin is a local path, above), and Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
+
 ## What the view suite measures, and what it does not
 
 Each pane reports `fetching`, `parsing`, `first-frame`, `done`, or `failed`, with milliseconds since the Load message and the bytes fetched. The suite records those, plus the file's size and hash, the conversion that made it, the browser version, and the GPU as WebGL and WebGPU report it. Each pane's README says which states it observes and which it infers, and what it cannot see (the true first draw, parse time apart from conversion inside one library call). Not measured yet: peak memory, frame rate while orbiting, and multi-threaded web-ifc.
@@ -63,7 +67,6 @@ Each suite is one folder under `suites/` with a task file, a scorer, and a READM
 
 ## Open questions
 
-- Can the side-by-side page run from GitHub Pages? The converted forms (BOS, Fragments, XKT) need somewhere public to live; a release asset per model on this repository is the likely answer.
 - Which public model of about 450,000 instances can stand in for the private Snowdon model, the size the toolkit claims to handle?
 - Should the published numbers also come from a laptop without a dedicated GPU?
 - How often is the report rerun: on each toolkit release, or on each release of any tool in it?
