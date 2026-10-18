@@ -1,0 +1,8 @@
+{
+  "tool": "IfcConvert",
+  "version": "0.9.0",
+  "build": "IfcOpenShell IfcConvert 0.9.0alpha0-8c614fa",
+  "seconds": 4.17,
+  "bytes": 1020996,
+  "sha256": "d47f16a2d661e5623e15e938b33c2ac6e96682d90002f47c4270c8ecf4044b16"
+}

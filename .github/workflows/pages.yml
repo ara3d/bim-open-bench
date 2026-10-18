@@ -4,8 +4,8 @@
 # What is built here: the four panes that are npm packages or a public repository (IFClite, That
 # Open, xeokit, Static glTF Viewer) and BIM Open Viewer from source. The Speckle pane is skipped
 # while tools/speckle/tool.json pins a local path (TKT-275 in bim-open-toolkit); its pane shows
-# "no pane bundle on this host". Models come from the release assets named by
-# models/manifest.json `release.baseUrl` (TKT-319), since the cache is never committed.
+# "no pane bundle on this host". The Duplex ships in models/bundled/; the larger models come
+# from the release assets named by models/manifest.json `release.baseUrl` (TKT-319).
 # GitHub Pages sends no cross-origin isolation headers, so panes that need them may fail there;
 # the checkout served by scripts/serve.mjs is the reference.
 name: pages
@@ -45,6 +45,7 @@ jobs:
           cp site/*.html site/*.mjs site/*.json "$out/site/"
           mv "$out/site/root-index.html" "$out/index.html"   # the site's root forwards to site/index.html
           cp models/manifest.json models/README.md models/NOTICE.md "$out/models/"
+          cp -r models/bundled "$out/models/bundled"   # the Duplex, so the page loads something with no release
           cp -r brand/. "$out/brand/"
           cp -r results/. "$out/results/"; rm -rf "$out"/results/*/scratch "$out"/results/scratch
           cp tools/pane.mjs tools/README.md "$out/tools/"

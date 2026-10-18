@@ -3,13 +3,15 @@
 // Load button, and one status line per pane. It reads nothing but
 // ../models/manifest.json and the conversion records <id>.<ext>.json beside each file.
 //
-// Where the files come from: ../models/cache/ when the page is served from a checkout
-// (scripts/serve.mjs); otherwise, on GitHub Pages, the release assets named by the
+// Where a model's files come from, first match: ../models/cache/ (a checkout after
+// npm run fetch and convert); ../models/bundled/ for a model the manifest marks `bundled`
+// (the Duplex, small enough to ship with the site); the release assets named by the
 // manifest's `release.baseUrl`, which hold the same files under the same names.
+// The Duplex loads on its own when the page opens; ?autoload=0 turns that off.
 //
 // Query parameters:
 //   ?model=<id>              preselect a model
-//   &autoload=1              press Load once every pane is ready
+//   &autoload=0              do not press Load by itself (the default is to load)
 //   &tools=thatopen,xeokit   show only these panes (default: all six)
 //   &form=thatopen:frag      the form a pane loads, when it reads more than one
 //
@@ -28,6 +30,7 @@ const ms = (t) => `${Math.round(t)} ms`;
 const seconds = (s) => (s >= 10 ? `${Math.round(s)} s` : `${s.toFixed(1)} s`);
 const kb = (b) => (b >= 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.round(b / 1e3)} kB`);
 
+const autoload = query.get("autoload") !== "0";
 const wantedTools = query.get("tools")?.split(",").filter(Boolean);
 const wantedForms = Object.fromEntries((query.get("form") ?? "").split(",").filter(Boolean).map((f) => f.split(":")));
 
@@ -41,6 +44,7 @@ function makePane(spec) {
   el.innerHTML = `
     <div class="line">
       <span class="name">${spec.title}</span>
+      <span class="by">${spec.by ?? ""}</span>
       <span class="version">loading</span>
       ${formControl}
       <span class="form"></span>
@@ -118,7 +122,7 @@ window.addEventListener("message", (e) => {
 
 function maybeEnable() {
   loadButton.disabled = !(select.value && panes.some((p) => p.ready));
-  if (query.get("autoload") && !loadButton.disabled && panes.every((p) => p.ready || p.gaveUp) && !maybeEnable.fired) {
+  if (autoload && !loadButton.disabled && panes.every((p) => p.ready || p.gaveUp) && !maybeEnable.fired) {
     maybeEnable.fired = true;
     load();
   }
@@ -174,13 +178,23 @@ loadButton.addEventListener("click", load);
 select.addEventListener("change", maybeEnable);
 
 const manifest = await fetch("../models/manifest.json").then((r) => r.json());
-// Local cache when it is there, else the release assets; the note says which, so a slow load is explained.
-const local = await fetch(`../models/cache/${manifest.models[0].id}.ifc`, { method: "HEAD" }).then((r) => r.ok).catch(() => false);
-const base = local ? "../models/cache" : manifest.release?.baseUrl;
-function fileUrl(id, form) { return `${base}/${id}.${form}`; }
-if (!local) document.getElementById("note").textContent = base
-  ? `Models come from the release assets at ${base}, not a local cache, so fetch time includes the download.`
-  : "No local model cache and no release assets named in the manifest: nothing can load here.";
+// Which source serves a model: said in the note, so a slow load is explained.
+const hasCache = await fetch(`../models/cache/${manifest.models[0].id}.ifc`, { method: "HEAD" }).then((r) => r.ok).catch(() => false);
+function baseFor(id) {
+  if (hasCache) return "../models/cache";
+  if (manifest.models.find((m) => m.id === id)?.bundled) return "../models/bundled";
+  return manifest.release?.baseUrl;
+}
+function fileUrl(id, form) { return `${baseFor(id)}/${id}.${form}`; }
+function describeSource() {
+  const base = baseFor(select.value);
+  document.getElementById("note").textContent =
+    base === "../models/cache" ? "One model in six viewers, each pane the same size. Files come from this checkout's models/cache."
+    : base === "../models/bundled" ? "One model in six viewers, each pane the same size. The Duplex ships with this site; the larger models come from release assets."
+    : base ? `Files come from the release assets at ${base}; fetch time includes the download.`
+    : "No local model cache and no release assets named in the manifest: nothing can load here.";
+}
+select.addEventListener("change", describeSource);
 for (const model of manifest.models) {
   const option = document.createElement("option");
   option.value = model.id;
@@ -188,5 +202,6 @@ for (const model of manifest.models) {
   select.append(option);
 }
 const wanted = query.get("model");
-if (wanted && manifest.models.some((m) => m.id === wanted)) select.value = wanted;
+select.value = manifest.models.some((m) => m.id === wanted) ? wanted : "duplex";
+describeSource();
 maybeEnable();

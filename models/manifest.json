@@ -14,7 +14,8 @@
       "sha256": "b347a2c8aa8fff6db896a4417a9c50c22ac0ccd7c5cfc22b99b8d29336c606ed",
       "bytes": 2380763,
       "schema": "IFC2X3",
-      "facts": {}
+      "facts": {},
+      "bundled": true
     },
     {
       "id": "schependomlaan",

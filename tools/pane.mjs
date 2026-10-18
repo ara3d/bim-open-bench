@@ -37,6 +37,10 @@ export function createPane({ tool, version, ext, load, win = window }) {
     doc.body.prepend(line);
   }
   if (embedded) line.hidden = true;
+  // The credit beside a pane's logo (a <span> in #logo naming the company): one rule for every pane.
+  const credit = doc.createElement("style");
+  credit.textContent = "#logo span { font: 600 12px system-ui, sans-serif; color: #7d8490; white-space: nowrap; }";
+  doc.head.append(credit);
   let origin = win.performance.now();
   let current = { model: "", url: "" };
   let history = [];

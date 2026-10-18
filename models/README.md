@@ -1,6 +1,6 @@
 # Model corpus
 
-`manifest.json` lists the public IFC models the benchmarks use. The files are never committed. Two commands build the local copy in `models/cache/` (git-ignored):
+`manifest.json` lists the public IFC models the benchmarks use. Only the Duplex is committed (`models/bundled/`, see NOTICE.md); the rest are never committed. Two commands build the local copy in `models/cache/` (git-ignored):
 
 ```
 node scripts/fetch.mjs      # download the IFC files; verify size, SHA-256, and schema

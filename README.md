@@ -6,7 +6,7 @@ BIM Open Bench measures tools that read building models. Every tool gets the sam
 
 ## What is here
 
-- **A corpus** of three public IFC models (`models/`): the buildingSMART Duplex (2.4 MB), Schependomlaan (49 MB), and Sixty5 (343 MB), each pinned by SHA-256 to a commit of its source, with its licence and attribution in `models/NOTICE.md`. A script converts each into the other forms the viewers read (`.glb`, `.bos`, `.frag`, `.xkt`) and records how long each conversion took.
+- **A corpus** of three public IFC models (`models/`): the buildingSMART Duplex (2.4 MB), Schependomlaan (49 MB), and Sixty5 (343 MB), each pinned by SHA-256 to a commit of its source, with its licence and attribution in `models/NOTICE.md`. The Duplex, in all five forms, is committed under `models/bundled/` (CC BY 4.0), so the side-by-side page loads it with nothing fetched. A script converts each into the other forms the viewers read (`.glb`, `.bos`, `.frag`, `.xkt`) and records how long each conversion took.
 - **Six viewer panes** (`tools/`), one per viewer, each pinned to an exact version and each speaking one small message contract: BIM Open Viewer, IFClite, Speckle's viewer (through an offline fork), That Open Engine, xeokit, and Static glTF Viewer (a plain three.js page, the baseline). `tools/README.md` has the contract, the table of versions and licences, and how to add a viewer.
 - **The side-by-side page** (`site/side-by-side.html`): one model opened in all six viewers at once, in six panes of the same size, with a line per pane giving the viewer's version, the form it reads, how long that form took to make ahead of time, its state, and its time. A viewer that reads two forms has a picker. "Copy table" puts the last load on the clipboard as a Markdown table.
 - **The `view` suite** (`scripts/view.mjs`): drives the same page one pane at a time in headless Chrome on the machine's GPU and records every state with its time. The latest numbers are in [`results/view/README.md`](results/view/README.md); the result files beside it carry the full records.
@@ -23,13 +23,13 @@ npm run serve        # http://localhost:8765/site/side-by-side.html
 npm run view         # the view suite: every pane, every model, every form; then results/view/README.md
 ```
 
-`node scripts/view.mjs --tool thatopen --model duplex --form frag` runs one load; `--software` renders on SwiftShader instead of the GPU. Each pane can also be opened on its own: `http://localhost:8765/tools/<name>/pane.html?model=duplex`.
+The side-by-side page loads the Duplex as soon as it opens (`?autoload=0` stops that, `?model=<id>` picks another model); without a fetched cache it uses the bundled Duplex. `node scripts/view.mjs --tool thatopen --model duplex --form frag` runs one load; `--software` renders on SwiftShader instead of the GPU. Each pane can also be opened on its own: `http://localhost:8765/tools/<name>/pane.html?model=duplex`.
 
 One pin is not yet public: the Speckle fork (`tools/speckle/tool.json`) points at a local path until it is pushed (TKT-275 in bim-open-toolkit), so a fresh clone builds five of the six panes.
 
 ## The published page
 
-[ara3d.github.io/bim-open-bench](https://ara3d.github.io/bim-open-bench/) is the side-by-side page and the results, published by `.github/workflows/pages.yml` on every push to `main` with the pane bundles it can build (every pane but Speckle's, whose pin is a local path, above). The models there come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319); until they do, the published page shows the panes and can load nothing. Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
+[ara3d.github.io/bim-open-bench](https://ara3d.github.io/bim-open-bench/) is the side-by-side page and the results, published by `.github/workflows/pages.yml` on every push to `main` with the pane bundles it can build (every pane but Speckle's, whose pin is a local path, above). It loads the bundled Duplex; Schependomlaan and Sixty5 come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319), so choosing one of them there fails until they do. Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
 
 ## What the view suite measures, and what it does not
 

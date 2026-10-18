@@ -48,6 +48,8 @@
     padding: 4px 8px; border-bottom: 1px solid var(--border); font-size: 12px; white-space: nowrap;
   }
   .pane .line .name { font-weight: 600; }
+  .pane .line .by { color: var(--dim); }
+  .pane .line .by:not(:empty)::before { content: "by "; }
   .pane .line .version, .pane .line .form, .pane .line .form-pick { color: var(--dim); }
   .pane .line select.form-pick { padding: 0 4px; font-size: 12px; }
   .pane .line .state { font-family: "Fira Code", Consolas, monospace; }
@@ -73,7 +75,7 @@
   <label>Model <select id="model"></select></label>
   <button id="load" class="primary" disabled>Load</button>
   <button id="copy" disabled title="Copy a Markdown table of the last load">Copy table</button>
-  <span class="note" id="note">One model in six viewers, each pane the same size. A line names the form each viewer reads and how long that form took to make ahead of time; a viewer that reads two forms has a picker.</span>
+  <span class="note" id="note">One model in six viewers, each pane the same size.</span>
 </header>
 <main id="main"></main>
 <script type="module" src="./side-by-side.mjs"></script>

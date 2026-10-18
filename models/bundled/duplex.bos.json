@@ -1,0 +1,8 @@
+{
+  "tool": "ifc-to-bos",
+  "version": "0.1.0",
+  "build": "ifc-to-bos 0.1.0",
+  "seconds": 141.61,
+  "bytes": 85319,
+  "sha256": "6e0fc8bb6d22b9a7c7f657f8b42500b3f7a563b44e2223ed1872ef488a332869"
+}

@@ -1,6 +1,6 @@
 # Notice
 
-This repository does not contain any model. `node scripts/fetch.mjs` downloads the three IFC files below from their public sources into `models/cache/` (git-ignored), and `node scripts/convert.mjs` converts them to other formats (today GLB, with IfcOpenShell's IfcConvert). The converted files are also kept only in the cache. Any repository or release that ships a converted copy must carry this notice, with the statement that the files were converted from the originals.
+`node scripts/fetch.mjs` downloads the three IFC files below from their public sources into `models/cache/` (git-ignored), and `node scripts/convert.mjs` converts them to the other forms the viewers read (GLB, BOS, Fragments, XKT). The one exception is the Duplex Apartment, small enough (4.7 MB in five forms) to be committed under `models/bundled/` so the published page and a fresh clone show a model with nothing fetched; the other two stay in the cache. `models/bundled/duplex.ifc` is the original file unchanged (same SHA-256 as the manifest); every other file there was converted from it with the tool named in the `.json` record beside it. Any repository or release that ships a converted copy must carry this notice, with the statement that the files were converted from the originals.
 
 All three models are licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/).
 
