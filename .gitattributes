@@ -1,0 +1,2 @@
+# The bundled models are byte-exact: their hashes are in models/manifest.json and the .json records.
+models/bundled/* -text
