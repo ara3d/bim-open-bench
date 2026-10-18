@@ -1,141 +1,73 @@
 <img src="brand/lockup.svg" alt="BIM Open Bench" height="48">
 
-Reproducible benchmarks for IFC parsers, viewers, and AI agents, run on public building models with known answers.
+Reproducible benchmarks for IFC viewers, parsers, and AI agents, run on public building models with known answers.
 
-BIM Open Bench measures tools that read building models. Every tool gets the same public IFC files and is scored against the same known answers. Each run records the tool's version, the machine, and the hash of every model, so anyone can rerun it and check the numbers. It is part of the [BIM Open](https://github.com/ara3d/bim-open-toolkit) family, but it tests competing tools on equal terms.
+BIM Open Bench measures tools that read building models. Every tool gets the same public IFC files, pinned by hash, and is run the way its authors ship it. Each result records the tool's version, the machine, the browser, and the hash of every file, so anyone can rerun it and check the numbers. It is part of the [BIM Open](https://github.com/ara3d/bim-open-toolkit) family, but it tests competing tools on equal terms, and the results are committed whether or not a BIM Open tool wins.
 
-This README is the plan. Built so far (2026-10-12): the three-model corpus in all five forms (`models/`, `scripts/`), the six panes (`tools/`), and the side-by-side page (`site/side-by-side.html`); see the build log at the end.
+## What is here
 
-## Why it exists
+- **A corpus** of three public IFC models (`models/`): the buildingSMART Duplex (2.4 MB), Schependomlaan (49 MB), and Sixty5 (343 MB), each pinned by SHA-256 to a commit of its source, with its licence and attribution in `models/NOTICE.md`. A script converts each into the other forms the viewers read (`.glb`, `.bos`, `.frag`, `.xkt`) and records how long each conversion took.
+- **Six viewer panes** (`tools/`), one per viewer, each pinned to an exact version and each speaking one small message contract: BIM Open Viewer, IFClite, Speckle's viewer (through an offline fork), That Open Engine, xeokit, and Static glTF Viewer (a plain three.js page, the baseline). `tools/README.md` has the contract, the table of versions and licences, and how to add a viewer.
+- **The side-by-side page** (`site/side-by-side.html`): one model opened in all six viewers at once, in six panes of the same size, with a line per pane giving the viewer's version, the form it reads, how long that form took to make ahead of time, its state, and its time. A viewer that reads two forms has a picker. "Copy table" puts the last load on the clipboard as a Markdown table.
+- **The `view` suite** (`scripts/view.mjs`): drives the same page one pane at a time in headless Chrome on the machine's GPU and records every state with its time. The latest numbers are in [`results/view/README.md`](results/view/README.md); the result files beside it carry the full records.
 
-The BIM Open Toolkit claims four things: what it can do, how easy it is to start, how large a model it handles, and how little time and how few tokens an answer costs. None of these claims means anything without a number next to another tool's number. The toolkit already measures things in four separate places, each with its own models and scripts:
+## Quick start
 
-- IFC-Bench, an external question set with ground truth, run against the toolkit's IFC server (TKT-145 in `bim-open-toolkit`).
-- Ten questions over the DuckDB export and eight over IFC files (`samples/ask/` in `bim-open-toolkit`).
-- Mesher parity: the toolkit's geometry compared against a reference mesher (TKT-65).
-- The planned comparison of Claude with the toolkit against Claude with only the raw files and a shell (workflow 5 in the toolkit's `PROJECT.md`).
-
-Each needs the same three things: models it may redistribute, answers to compare against, and a fixed way to run and report. This repository builds them once.
-
-## What it will hold
-
-### 1. A model corpus
-
-`models/manifest.json` lists public IFC files: the buildingSMART samples, the IFC-Bench models, and open sample projects. Each entry has the source URL, the licence, a SHA-256 hash, the file size, and basic facts (element count, storeys, bounding box). A fetch script downloads and checks them. The files themselves are never committed, not even through Git LFS; the open licensing question is TKT-144 (sample model redistribution) in `bim-open-toolkit`.
-
-The corpus should span sizes, from a single-room sample to a model of about 450,000 instances, because size is one of the four claims. The Snowdon model is private and stays out; a public model of similar size is needed in its place.
-
-### 2. Ground truth
-
-`truth/<model>/` holds the known answers for each model, kept apart from any tool: element counts by type, quantities, property values, storey membership, and geometry statistics such as volumes and bounding boxes per element. Each answer records how it was obtained: by hand, from IfcOpenShell, or from two independent tools that agree. When a tool disagrees with the truth, that record is what settles who is wrong.
-
-### 3. Suites
-
-Each suite is one folder under `suites/`, with the same shape: a task or question file, a scorer, and a README saying what is measured and how.
-
-| Suite | Measures | Compares | Order |
-|---|---|---|---|
-| `ask` | Correct answers, time, and tokens for questions and tasks | Claude with the toolkit's MCP servers and skills, against Claude with raw files and a shell; IFC-Bench lives here | Second |
-| `geometry` | Mesh correctness: volumes, bounding boxes, missing or extra elements | The toolkit's mesher, web-ifc, IfcOpenShell | Third |
-| `view` | Time to first frame, peak memory, frame rate while orbiting; and a page that opens the same model in every viewer at once | See the shortlist below | First |
-| `parse` | IFC load time, memory, and how many entities come back whole | web-ifc, IfcOpenShell, ifc-lite, the BOS converter | Fourth |
-| `query` | Query speed and answers after conversion | DuckDB over BOS, SQLite, IfcOpenShell scripts | Later, if asked for |
-| `size` | File size and conversion time | IFC, BOS (Parquet), That Open Fragments, glTF | Later, if asked for |
-
-The `view` suite starts with six viewers, all of which run offline in a browser from a script:
-
-1. BIM Open Viewer
-2. IFClite
-3. Speckle's viewer, through the offline fork in `bim-open-web-viewer` (no server, no account)
-4. That Open Engine, timed on raw IFC and on Fragments made ahead
-5. xeokit, timed on raw IFC and on XKT made ahead
-6. Static glTF Viewer (EverseDevelopment/Static.glTF.Viewer, MIT, three.js 0.160, a Vite page adapted from Don McCurdy's three-gltf-viewer, last pushed 2025-10-14), showing a GLB made ahead by IfcConvert: the baseline, a plain three.js scene with no BIM code
-
-xBIM WeXplorer comes next if its conversion step can be scripted. Desktop viewers (Bonsai, BIMcollab ZOOM, Solibri Anywhere, FZKViewer) get a one-off manual table, not an automated suite.
-
-#### The side-by-side page
-
-The first thing the suite ships is not a table of numbers but a page, `site/side-by-side.html`, that opens one model in all six viewers at once, so a person can watch them load and then orbit each. The layout is deliberately partial: BIM Open Viewer takes the left half, and the other five share the right half in a grid of two columns and three rows. A toolbar holds the model picker, a Load button that starts every pane at the same instant, and a per-pane line with the viewer's name and version, its state (fetching, parsing, first frame, done, failed), the elapsed time, and the bytes it fetched. The page is a demo first and a measurement second; the numbers it shows are honest but the automated suite, not the page, produces the published ones.
-
-What each pane loads, and why it differs. Three of the six parse IFC in the browser themselves: IFClite (its own Rust parser in WebAssembly), That Open (web-ifc, then Fragments), and xeokit (`WebIFCLoaderPlugin`, also over web-ifc). The other three do not read IFC at all: BIM Open Viewer reads BOS, GLB, and OBJ; Speckle's viewer reads Speckle objects, which the fork can build from BOS in memory; and Static glTF Viewer reads only glTF and GLB. So every model in the corpus is kept in the forms each viewer accepts, converted ahead of time by script, and the page shows the conversion time beside the load time, as the fairness rules require. The conversions and who makes them:
-
-| Form | Made by | Used by |
-|---|---|---|
-| `.ifc` | the source | IFClite, That Open, xeokit |
-| `.bos` (Parquet) | the toolkit's `ifc_to_bos` | BIM Open Viewer, Speckle fork |
-| `.frag` | That Open's `IfcImporter` in Node | That Open, second timing |
-| `.xkt` | xeokit's `convert2xkt` | xeokit, second timing |
-| `.glb` | IfcOpenShell's IfcConvert, pinned release | Static glTF Viewer; BIM Open Viewer, second timing |
-
-This is the bias the page admits: the BIM Open side gets a pre-converted file and the largest pane. The per-pane line says so in words ("BOS, converted ahead in 4.1 s"), which is enough for now.
-
-Each pane is an iframe with its own small Vite page and its own `node_modules`, under `tools/<viewer>/`. Six viewers pin four different three.js versions (Speckle's fork 0.140, Static glTF Viewer 0.160, That Open 0.182 or later, BIM Open Viewer 0.185), IFClite renders with WebGPU, and xeokit has its own WebGL engine; one bundle cannot hold them, and a crash in one must not take the others down. The page and the panes speak one small `postMessage` contract, written in `tools/README.md`: the page sends a load message with the model id and the file's URL; a pane announces itself with its tool name and version, then reports each state (fetching, parsing, first-frame, done, failed) with the elapsed milliseconds and, when known, the bytes. Static glTF Viewer is not on npm and takes its model from a `?file=` query parameter (`?kiosk=1` hides its header), so its pane is the viewer's own page built from a pinned commit under `tools/static-gltf/`, wrapped by a few lines that pass the URL in and report the states out. The same pane pages, driven by Playwright instead of the toolbar, are the automated `view` suite's adapters, so nothing is written twice.
-
-Questions the first build answered (2026-10-12): IFClite's renderer has no WebGL fallback, it throws when WebGPU is missing, so a machine without WebGPU gets a `failed` pane and headless Chrome needs `--enable-unsafe-webgpu --use-webgpu-adapter=swiftshader`. xeokit and That Open cannot share one web-ifc, because they pin different versions (0.0.51 and 0.0.77) and each pane is its own bundle. A model one viewer cannot open shows `failed` with the message in that pane's line while the others keep loading. Still open: whether the Speckle fork's direct BOS path is fairer to it than Speckle objects made ahead; the pane uses the direct path and its README says why.
-
-### 4. Tool adapters
-
-`tools/<name>/` holds one small adapter per tool: load a model, answer or render, and report what the suite measures. Each tool is installed the way a real user would install it, pinned to an exact version:
-
-- JavaScript packages: exact versions in `package.json` and the lockfile, no `^` ranges.
-- Python tools: a lock file.
-- Native programs such as IfcConvert: a pinned release URL and hash, downloaded by script.
-- BIM Open tools: the same route as everyone else, a published package or release. Where none exists yet, a URL and commit hash, as `deps.json` does in `bim-open-toolkit`.
-
-No submodules. The bench depends on the toolkit; the toolkit never depends on the bench.
-
-### 5. One runner, one result format, one report
+Node 22 or later, Git, Chrome, .NET 8 (for the BOS converter), and about 1 GB of disk for the models and their forms (the viewer checkouts and their packages take several more).
 
 ```
-bench run <suite> --tool <name> [--model <id>]
+npm run fetch        # download the three IFC files and verify their hashes
+npm run tools        # clone and build the pinned viewers (the first run takes a while: two of them build from source)
+npm run convert      # make .glb, .bos, .frag and .xkt for each model, timing each
+npm run serve        # http://localhost:8765/site/side-by-side.html
+npm run view         # the view suite: every pane, every model, every form; then results/view/README.md
 ```
 
-writes `results/<suite>/<date>-<tool>.json` with the tool and version, the machine (OS, CPU, GPU, memory), the model hashes, the scores, and for the `ask` suite the full transcript. A report script turns the latest results into one page per suite, published with GitHub Pages and styled per [`brand/BRANDING.md`](brand/BRANDING.md).
+`node scripts/view.mjs --tool thatopen --model duplex --form frag` runs one load; `--software` renders on SwiftShader instead of the GPU. Each pane can also be opened on its own: `http://localhost:8765/tools/<name>/pane.html?model=duplex`.
+
+One pin is not yet public: the Speckle fork (`tools/speckle/tool.json`) points at a local path until it is pushed (TKT-275 in bim-open-toolkit), so a fresh clone builds five of the six panes.
+
+## What the view suite measures, and what it does not
+
+Each pane reports `fetching`, `parsing`, `first-frame`, `done`, or `failed`, with milliseconds since the Load message and the bytes fetched. The suite records those, plus the file's size and hash, the conversion that made it, the browser version, and the GPU as WebGL and WebGPU report it. Each pane's README says which states it observes and which it infers, and what it cannot see (the true first draw, parse time apart from conversion inside one library call). Not measured yet: peak memory, frame rate while orbiting, and multi-threaded web-ifc.
+
+Two biases are declared rather than hidden. Three viewers parse the IFC in the browser (IFClite, That Open, xeokit); the other three read a form made ahead of time (BOS, GLB), and the conversion time is reported beside the load time. The Speckle pane feeds the fork BOS directly rather than Speckle objects made ahead, which may or may not be fairer to Speckle; its README says why.
+
+## For the NRC paper's viewer test kit
+
+The test kit in `nrc-ifc-llm/IFC-Test-Kit/` uses two files, `duplex.ifc` and `large_test_model.ifc`. They are byte-identical to this corpus's `duplex` and `schependomlaan` (the same SHA-256, `b347a2c8…` and `2c3565ca…`). The view suite's rows for those two models are therefore the kit's step 1 (load the Duplex) and step 6 (load the large model and record its speed) for every web viewer in the paper's comparison table, run rather than read from project pages, with the versions and the machine recorded. Steps 2 to 5 (colour from a CSV, a property panel, totals by level) are not measured here.
 
 ## Rules for a fair comparison
 
-- Every tool runs on the same machine, the same models, and its own default settings. Any setting changed from the default is written in the adapter with the reason.
+- Every tool runs on the same machine, the same models, and its own default settings. Any setting changed from the default is written in the pane with the reason.
 - Conversion time is reported separately from load time, so a tool that converts ahead of time is neither hidden nor punished.
 - Adapters are public, so each tool's authors can check that their tool was used properly. A fix from them is welcome.
 - A tool that cannot run offline from a script (one that needs an account or a vendor's cloud) is left out or marked as run by hand.
 - Results are committed, including the ones where a BIM Open tool loses.
 
+## Planned suites
+
+| Suite | Measures | Compares |
+|---|---|---|
+| `ask` | Correct answers, time, and tokens for questions and tasks over the corpus | Claude with the toolkit's MCP servers and skills, against Claude with raw files and a shell; IFC-Bench joins here. This is workflow 5 of the toolkit's `PROJECT.md` |
+| `geometry` | Mesh correctness: volumes, bounding boxes, missing or extra elements, against ground truth kept in `truth/` | The toolkit's mesher, web-ifc, IfcOpenShell |
+| `parse` | IFC load time, memory, and how many entities come back whole | web-ifc, IfcOpenShell, IFClite, the BOS converter |
+
+Each suite is one folder under `suites/` with a task file, a scorer, and a README, and writes `results/<suite>/<date>.json` in the shape the view suite uses. `query` and `size` suites come later, if someone asks those questions. Desktop viewers (Bonsai, BIMcollab ZOOM, Solibri Anywhere, FZKViewer) get a one-off table filled by hand, not an automated suite; xBIM WeXplorer joins the panes if its conversion step can be scripted.
+
 ## Out of scope
 
 - Release gates for single projects ("this release did not get slower"). Those belong in each project's own tests.
-- Model files in the repository.
+- Model files in the repository. The corpus is fetched by script; the open licensing question is TKT-144 in bim-open-toolkit.
 - Hosted services that need accounts: Autodesk Platform Services, Bentley iTwin, Trimble Connect, Dalux, Revizto.
-
-## Plan
-
-Each step ends with something that runs and a result committed.
-
-1. **A small corpus.** Manifest, fetch script, and three models with known licences: one small (the buildingSMART Duplex, CC BY 4.0), one medium (Schependomlaan), one large enough to separate the viewers. Each kept in the forms the table above lists (today only `.ifc` and `.glb`), made by a `convert` script that records its own time. Done when a fresh clone fetches, verifies, and converts every model with one command.
-2. **Six panes.** One iframe page per viewer under `tools/<viewer>/`, each pinned to an exact version, each speaking the `postMessage` contract, each shown to load the Duplex on its own. Order: Static glTF Viewer, BIM Open Viewer, and That Open first (the baseline is the smallest adapter, and the toolkit already builds against the other two), then xeokit, IFClite, and the Speckle fork, which carry the open questions. Done when each pane page loads the three models and reports its states.
-3. **The side-by-side page.** The toolbar, the layout, the per-pane lines, and the published copy on GitHub Pages. Done when a person opens the page, picks a model, presses Load, and watches all six.
-4. **The automated `view` suite.** Playwright drives the same pane pages, records first frame, peak memory, and orbit frame rate per viewer and model, and writes the result format. Done when `bench run view` produces one result file per viewer and the report page lists them.
-5. **Runner and report.** The result format and the report page, generalised from step 4 and shared by every later suite.
-6. **`ask` suite.** Port the toolkit's question sets and IFC-Bench; write the scorer; run both arms (with the toolkit, and with raw files and a shell) with the same Claude model. Done when one command runs both arms and writes a report with correctness, time, and tokens per arm. This is the toolkit's workflow 5, and it should install the toolkit through its documented one-command install, which then gets checked on every run.
-7. **`geometry` suite.** Ground-truth volumes and bounding boxes per element; reuse the toolkit's mesher parity checks.
-8. **`parse` suite.** Adapters for the four parsers.
-9. **Later.** `query` and `size`, when someone asks those questions.
 
 ## Open questions
 
-- Does the side-by-side page run from GitHub Pages with the models fetched from their source URLs, or only locally after the fetch script, because the converted forms (BOS, Fragments, XKT) have nowhere public to live? A release asset per model on this repository is the likely answer.
-- Which public model of about 450,000 instances can stand in for Snowdon?
-- Which machine runs the published numbers, and should the `view` suite also report a laptop without a dedicated GPU?
-- Does the `ask` suite wait for the toolkit's one-command install (workflow 1), or build from source until it exists?
-- How often is the published report rerun: on each toolkit release, or on each release of any tool in it?
-
-## Build log
-
-- 2026-10-11, corpus (step 1): `models/manifest.json` pins the Duplex (2.4 MB) and Schependomlaan (49 MB) from buildingSMART's `Community-Sample-Test-Files` at one commit through Git LFS media URLs, and Sixty5 (343 MB, the largest CC BY 4.0 model in IFC-Bench) from the dataset's pinned Hugging Face revision. `scripts/fetch.mjs` streams and verifies them; `scripts/convert.mjs` downloads IfcConvert 0.9.0 (win64 and linux64, pinned by URL and hash) and writes a `.glb` per model with its time in a record beside it: Duplex 4.5 s and 1.0 MB, Schependomlaan 140 s and 15.7 MB, Sixty5 301 s and 68 MB. Commits 16fe3f1, 09ba4fe, b0e309b.
-- 2026-10-11, Static glTF Viewer pane (step 2, first of six): `scripts/tools.mjs` clones the viewer at commit 4089240 and builds it; `scripts/serve.mjs` serves the repository with Range requests and the cross-origin isolation headers, under which the viewer still renders; `tools/static-gltf/pane.html` wraps the built page in an iframe and reports the states by watching its spinner and the GLB's resource timing. The Duplex reaches first frame in 0.56 s on a warm reload in the desktop browser (9 s on the first open, warm-up of the browser itself). What the pane cannot see is listed in `tools/static-gltf/README.md`: running bytes, fetch apart from parse, and the true first draw. Commits 281d2d7, 856d2ee, d54c5d6.
-
-- 2026-10-12, the other five panes (step 2) and the side-by-side page (step 3), built by five agents at once in one checkout, each inside its own folder. New forms: `.bos` through a new `tools/ifc-to-bos` console in bim-open-data (commit e85c98a; the bench pins that commit and builds it with `dotnet`), `.frag` through That Open's `IfcImporter` in Node, `.xkt` through `convert2xkt`. Every pane loads the Duplex and Schependomlaan; Sixty5 loads in BIM Open Viewer, That Open (both forms), Speckle (first frame 10 s, done 143 s, mostly mesh batching), and the Static glTF Viewer, and did not open in IFClite within 1,500 s in headless software rendering. All timings so far come from headless Chrome on SwiftShader while the machine was building five panes, so they say which state came first and nothing about speed; the automated suite (step 4) reruns them on a quiet machine with a GPU. Findings: That Open needs web-ifc 0.0.77, not 0.0.78 (a changed loader signature); web-ifc's threaded build fails inside a bundle under the isolation headers, so the That Open pane forces single-thread; IfcConvert's default GLB is Z-up, so the Duplex stands on its end in BIM Open Viewer, which reads glTF as Y-up by the specification (the `--y-up` flag is the candidate fix, not yet applied); building the viewer and bim-open-data checkouts from clean took 27 and 34 minutes on the loaded machine. The page: `site/side-by-side.html?model=duplex&autoload=1` loads all six at once; in the desktop app's browser pane, with six viewers sharing one throttled tab, the Duplex reached done in every pane but xeokit in about 50 s. Commits ab68263 to dea6c39.
-- 2026-10-12, later: the xeokit pane landed (commits 104f656 to 95c1bff) and all six panes carry their viewer's logo (43f25b1). xeokit's IFC path threw "offset is out of bounds" on every model: a defect in `@xeokit/xeokit-sdk` 2.6.114's `VBOLayer.compileBuffer`, which copies a zero-vertex portion it never sized, hit because web-ifc returns an empty mesh for one Duplex roof, 64 Schependomlaan elements, and 7 in Sixty5 (checked in Node with web-ifc 0.0.51 and 0.0.70, single- and multi-threaded, with and without the isolation headers). The pane drops empty geometries before the plugin sees them, a changed setting with its reason in `tools/xeokit/pane.mjs`; worth reporting upstream. Sixty5 through xeokit's IFC path never answered in 25 minutes (memory or a blocked main thread, not the same defect); its `.xkt` loads in 2 s. The side-by-side page shows all six with the Duplex. BIM Open Viewer draws every model grey: a defect in the viewer's `createViewer` path, which replaces the loaded material colours with a default appearance (TKT-284 in bim-open-toolkit); the pane makes no workaround.
+- Can the side-by-side page run from GitHub Pages? The converted forms (BOS, Fragments, XKT) need somewhere public to live; a release asset per model on this repository is the likely answer.
+- Which public model of about 450,000 instances can stand in for the private Snowdon model, the size the toolkit claims to handle?
+- Should the published numbers also come from a laptop without a dedicated GPU?
+- How often is the report rerun: on each toolkit release, or on each release of any tool in it?
 
 ## Branding
 
-The mark, colours, and fonts are in [`brand/BRANDING.md`](brand/BRANDING.md); the family guide is `docs/BRANDING.md` in `bim-open-toolkit`.
+The mark, colours, and fonts are in [`brand/BRANDING.md`](brand/BRANDING.md); the family guide is `docs/BRANDING.md` in `bim-open-toolkit`. The history of how each piece was built and what each step found is in the commit messages (`git log`), not here.
