@@ -25,11 +25,11 @@ npm run view         # the view suite: every pane, every model, every form; then
 
 The side-by-side page loads the Duplex as soon as it opens (`?autoload=0` stops that, `?model=<id>` picks another model); without a fetched cache it uses the bundled Duplex. `node scripts/view.mjs --tool thatopen --model duplex --form frag` runs one load; `--software` renders on SwiftShader instead of the GPU. Each pane can also be opened on its own: `http://localhost:8765/tools/<name>/pane.html?model=duplex`.
 
-One pin is not yet public: the Speckle fork (`tools/speckle/tool.json`) points at a local path until it is pushed (TKT-275 in bim-open-toolkit), so a fresh clone builds five of the six panes.
+One pin is not yet public: the Speckle fork (`tools/speckle/tool.json`) points at a local path until it is pushed (TKT-275 in bim-open-toolkit), so a fresh clone builds five of the six panes; `tools/speckle/prebuilt/pane.js` is the sixth, built from the pinned commit, which the published site uses.
 
 ## The published page
 
-[ara3d.github.io/bim-open-bench](https://ara3d.github.io/bim-open-bench/) is the side-by-side page and the results, published by `.github/workflows/pages.yml` on every push to `main` with the pane bundles it can build (every pane but Speckle's, whose pin is a local path, above). It loads the bundled Duplex; Schependomlaan and Sixty5 come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319), so choosing one of them there fails until they do. Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
+[ara3d.github.io/bim-open-bench](https://ara3d.github.io/bim-open-bench/) is the side-by-side page and the results, published by `.github/workflows/pages.yml` on every push to `main` with the pane bundles it can build (Speckle's pane ships as a prebuilt bundle, since its pin is a local path, above). It loads the bundled Duplex; Schependomlaan and Sixty5 come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319), so choosing one of them there fails until they do. Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
 
 ## What the view suite measures, and what it does not
 

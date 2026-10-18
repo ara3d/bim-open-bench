@@ -8,6 +8,10 @@ This pane runs the Speckle viewer's engine through an offline fork, [bim-open-we
 
 `node scripts/tools.mjs speckle` clones the pin and runs `npm ci && npm run build` in the checkout (the three workspace packages and the fork's own sandbox). Then it runs `npm ci --no-audit --no-fund && npx vite build` here, which bundles `src/pane.mjs` with `file:checkout/packages/viewer` and `file:checkout/packages/bos` into `dist/pane.js` (git-ignored). Everything, including the viewer's default environment image, is inlined in that one file, so nothing loads from another origin under `Cross-Origin-Embedder-Policy: require-corp`. The pane depends on no `three` of its own; the bundle holds one copy, 0.140.2, from the checkout (`resolve.dedupe` in `vite.config.mjs` keeps it so). Three.js 0.140 builds cleanly in this bundle, with no warnings that matter.
 
+## Prebuilt bundle for the published site
+
+`prebuilt/pane.js` is `dist/pane.js` as built from the pinned commit (2.4 MB, one file with its environment image inlined; Apache-2.0 like the fork). GitHub Actions cannot clone the fork while `repo` is a local path, so the Pages workflow copies this file into the site. Rebuild it with `node scripts/tools.mjs speckle` and copy `dist/pane.js` over it whenever the pin moves; once the fork has a public URL (TKT-275) the workflow builds the pane itself and this folder can go.
+
 ## How the pane drives it
 
 `src/pane.mjs` creates a `Viewer` with `CameraController` (nothing else: no selection, sections, or measurements), fetches the `.bos`, runs `readBos`, and calls `viewer.loadObject(new InstancedModelLoader(...), true)`. The `true` makes the viewer fit the camera to the model as batches arrive, so a screenshot shows the whole model.

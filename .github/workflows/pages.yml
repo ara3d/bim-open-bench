@@ -3,8 +3,8 @@
 #
 # What is built here: the four panes that are npm packages or a public repository (IFClite, That
 # Open, xeokit, Static glTF Viewer) and BIM Open Viewer from source. The Speckle pane is skipped
-# while tools/speckle/tool.json pins a local path (TKT-275 in bim-open-toolkit); its pane shows
-# "no pane bundle on this host". The Duplex ships in models/bundled/; the larger models come
+# while tools/speckle/tool.json pins a local path (TKT-275 in bim-open-toolkit); the site uses the
+# prebuilt tools/speckle/prebuilt/pane.js instead. The Duplex ships in models/bundled/; the larger models come
 # from the release assets named by models/manifest.json `release.baseUrl` (TKT-319).
 # GitHub Pages sends no cross-origin isolation headers, so panes that need them may fail there;
 # the checkout served by scripts/serve.mjs is the reference.
@@ -59,6 +59,11 @@ jobs:
             # Static glTF Viewer's pane loads the viewer's own built page and reads its package.json for the version.
             if [ -d "$d/checkout/dist" ]; then mkdir -p "$out/tools/$name/checkout"; cp -r "$d/checkout/dist" "$out/tools/$name/checkout/dist"; cp "$d/checkout/package.json" "$out/tools/$name/checkout/"; fi
           done
+          # Speckle's fork has no public pin yet (TKT-275), so CI cannot build its pane: the published site
+          # uses the bundle built from the pinned commit on the owner's machine (tools/speckle/README.md).
+          if [ ! -f "$out/tools/speckle/dist/pane.js" ] && [ -f tools/speckle/prebuilt/pane.js ]; then
+            mkdir -p "$out/tools/speckle/dist"; cp tools/speckle/prebuilt/pane.js "$out/tools/speckle/dist/pane.js"
+          fi
           cp README.md "$out/"
           touch "$out/.nojekyll"
           du -sh "$out"; find "$out" -maxdepth 3 -type d | sort
