@@ -29,7 +29,7 @@ One pin is not yet public: the Speckle fork (`tools/speckle/tool.json`) points a
 
 ## The published page
 
-`.github/workflows/pages.yml` publishes `site/`, the pane bundles it can build, and the results to GitHub Pages on every push to `main`: `https://ara3d.github.io/bim-open-bench/` once Pages is switched on with source "GitHub Actions" (TKT-142). The models there come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319); until they do, the published page shows the panes and can load nothing. The workflow builds every pane but Speckle's (its pin is a local path, above), and Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
+[ara3d.github.io/bim-open-bench](https://ara3d.github.io/bim-open-bench/) is the side-by-side page and the results, published by `.github/workflows/pages.yml` on every push to `main` with the pane bundles it can build (every pane but Speckle's, whose pin is a local path, above). The models there come from release assets named by `release.baseUrl` in `models/manifest.json`, which do not exist yet (TKT-319); until they do, the published page shows the panes and can load nothing. Pages sends no cross-origin isolation headers, so the checkout served by `npm run serve` stays the reference for the numbers.
 
 ## What the view suite measures, and what it does not
 

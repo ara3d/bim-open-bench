@@ -43,6 +43,7 @@ jobs:
           out=_site
           mkdir -p "$out/site" "$out/models" "$out/results" "$out/brand" "$out/tools"
           cp site/*.html site/*.mjs site/*.json "$out/site/"
+          mv "$out/site/root-index.html" "$out/index.html"   # the site's root forwards to site/index.html
           cp models/manifest.json models/README.md models/NOTICE.md "$out/models/"
           cp -r brand/. "$out/brand/"
           cp -r results/. "$out/results/"; rm -rf "$out"/results/*/scratch "$out"/results/scratch
