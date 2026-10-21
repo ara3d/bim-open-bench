@@ -26,6 +26,8 @@ Pinned exactly in `package.json`, with `package-lock.json`; read by `pane.mjs` f
 ## Settings changed from the defaults
 
 - The Fragments worker and web-ifc's wasm come from `dist/`, not a CDN (above).
+- The camera's far plane is pushed to three times the model's box diagonal when shorter. The library's camera is `PerspectiveCamera(60, aspect, 1, 1000)`, which cut models more than a kilometre across (a building with its site context).
+- The viewer element hides its overflow. At `devicePixelRatio` 1.5 (Windows display scale 150 %) the canvas rounded one pixel past its box, scrollbars appeared, the renderer resized, they went, and so on: the pane blinked and the camera buttons seemed to do nothing.
 - web-ifc is initialised once, single-threaded, before the first load. web-ifc chooses its multi-threaded build whenever the page is cross-origin isolated, which the server's headers make true; its pthread workers then failed in this bundle ("worker sent an error!", repeated, and the load never ended). The `.frag` path does not use web-ifc. A bench that wants the threaded numbers needs a pane that makes the threads start; this one does not.
 
 ## What each state observes
