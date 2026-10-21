@@ -2,6 +2,7 @@
 // XKTLoaderPlugin, both with the SDK's defaults. See README.md here for what is observed.
 import { Viewer, WebIFCLoaderPlugin, XKTLoaderPlugin } from "@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js";
 import { createPane } from "../pane.mjs";
+import { installCameraPath } from "../camera-path.mjs";
 
 // web-ifc comes from dist/web-ifc-api-iife.js, a classic <script> in pane.html that sets globalThis.WebIFC.
 // The SDK's docs for WebIFCLoaderPlugin name web-ifc 0.0.51, installed here as "web-ifc-0.0.51"; 0.0.70 (the
@@ -106,6 +107,37 @@ let failedOnce = false;
 const failWith = (m) => { if (!failedOnce) { failedOnce = true; currentReport?.("failed", { message: String(m) }); } };
 addEventListener("error", (e) => failWith(e.message));
 addEventListener("unhandledrejection", (e) => failWith(e.reason?.message ?? e.reason));
+
+// The camera path's adapter (tools/camera-path.mjs): the scene's aabb (what jumpTo frames), the
+// camera's world up (camera.up is its own up, which tilts with the view), and eye/look/up set
+// directly, without CameraFlightAnimation. A camera change marks the scene dirty and xeokit draws it
+// on its own requestAnimationFrame loop; the count of drawn frames goes with the path result, to
+// check that every rAF interval of the path holds a draw.
+let rendered = 0;
+let counting = false;
+installCameraPath({
+  camera: {
+    box() {
+      if (!viewer || Object.keys(viewer.scene.models).length === 0) return null;
+      const a = viewer.scene.aabb;
+      return a[0] <= a[3] ? { min: [a[0], a[1], a[2]], max: [a[3], a[4], a[5]] } : null;
+    },
+    up: () => [...viewer.camera.worldUp],
+    set(eye, target) {
+      if (!counting) { counting = true; viewer.scene.on("rendered", (e) => { if (e.pass === 0) rendered++; }); }
+      const c = viewer.camera;
+      c.up = [...c.worldUp];
+      c.eye = eye;
+      c.look = target;
+    },
+  },
+});
+const playPath = window.__benchCamera.playPath;
+window.__benchCamera.playPath = async () => {
+  const before = rendered;
+  const r = await playPath();
+  return { ...r, rendered: rendered - before };
+};
 
 createPane({
   tool: "xeokit",

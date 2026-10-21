@@ -29,7 +29,7 @@ How the bundle depends on the checkout: `vite.config.mjs` aliases `@bim-open-vie
 - Running bytes while fetching: the progress events carry them, but the contract takes one `bytes` value and the pane sends the final size with `parsing`.
 - Parsing, conversion (BOS to the viewer's internal form) and upload as separate costs: the loaders emit `parse`, `convert` and `metadata` phases, and the pane merges them into `parsing`.
 - The true first draw, as above. Under headless SwiftShader (software WebGL) the gap between `parsing` and `first-frame` is dominated by the CPU renderer.
-- Memory and frame rate: the `view` suite does not measure them yet.
+- Frame rate is measured only along the `view` suite's camera path (`--path`), not while a user drives the viewer; memory is the whole Chrome's, sampled from outside on Windows, not the viewer's own.
 - GLB orientation: the viewer treats glTF as y-up, and IfcConvert's default GLB keeps the IFC's z-up axes, so the Duplex GLB appears on its end. The bench runs each tool with its defaults, so the pane does not correct it.
 
 ## Checking it
@@ -37,3 +37,9 @@ How the bundle depends on the checkout: `vite.config.mjs` aliases `@bim-open-vie
 `node scripts/view.mjs --tool bim-open-viewer --model duplex` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
 Logo: `logo.svg` is `docs/brand/viewer-lockup.svg` from https://github.com/ara3d/bim-open-viewer (MIT), used to identify the viewer in the benchmark.
+
+## Camera path
+
+`src/pane.mjs` installs `tools/camera-path.mjs` with an adapter in the viewer's own world: `box()` is `viewer.bounds()` (what `view.fit` frames, null while empty), `up()` is the first view's `camera().camera.up` (z for the BOS files), and `set(eye, target)` runs the public `view.look` command with no `flightMs` (an instant move, as a saved-view restore) keeping the current projection and coordinates, then calls `requestRender()` on the view.
+The view's frame loop draws only when dirty, so every path frame is a real draw; the near and far planes are re-cut from the bounds by the view itself.
+`node scripts/view.mjs --tool bim-open-viewer --model duplex --form bos --path` plays it and writes the iso, front and inside screenshots.

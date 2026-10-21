@@ -60,3 +60,7 @@ The server sends `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Emb
 Before the frame loop was added the pane reported `done` over an empty canvas, which is why `done` waits for a drawn frame.
 
 Logo: `logo.png` is https://github.com/LTplus-AG/ifc-lite/blob/main/apps/viewer/public/favicon-96x96-cropped.png (repository MPL-2.0; the mark belongs to LTplus AG), used to identify the viewer in the benchmark. The full `docs/assets/logo.png` there is 1.3 MB, too large for a pane.
+
+## Camera path
+
+`pane.mjs` installs the adapter for `tools/camera-path.mjs` (`--path` in `scripts/view.mjs`). `box()` is `renderer.getModelBounds()`, the same bounds `fitToView()` frames (Y-up world, model translation applied); `up()` is `renderer.getCamera().getUp()`. `set(eye, target)` calls `camera.stopInertia()`, `camera.setPosition(...)` and `camera.setTarget(...)`, which apply at once (no animation), then `renderer.requestRender()` so the pane's frame loop calls `render()` on the next frame. Checked on 2026-10-19: `renderer._renderCallCount` grew by one per path frame (17 540 renders for 17 538 frames on the Duplex, no skipped frame).

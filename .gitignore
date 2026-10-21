@@ -7,3 +7,5 @@ node_modules/
 results/**/scratch/
 # Bundled pane output, built by scripts/tools.mjs from tool.json "pane".
 tools/*/dist/
+# The view suite's lock while a measuring run is on (scripts/view.mjs).
+results/view/.view.lock

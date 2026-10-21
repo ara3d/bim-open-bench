@@ -52,5 +52,9 @@ On `.ifc` the time from `parsing` to `first-frame` covers web-ifc's geometry str
 
 - The renderer's true first draw of the model, and whether tiles are still streaming at `done`.
 - Bytes while fetching, and parse time apart from conversion time inside `IfcLoader`.
-- Memory and frame rate: the `view` suite does not measure them yet.
+- Frame rate is measured only along the `view` suite's camera path (`--path`), not while a user drives the viewer; memory is the whole Chrome's, sampled from outside on Windows, not the viewer's own.
 - Multi-threaded web-ifc timing (see above).
+
+## Camera path
+
+`pane.mjs` installs `tools/camera-path.mjs` with an adapter in That Open's world: `box()` is the union of `model.box` over `fragments.list`, `up()` is `world.camera.three.up`, and `set()` calls `world.camera.controls.setLookAt(eye, target, false)` (camera-controls, no transition). Nothing else is driven by hand: the library's own `requestAnimationFrame` loop (`components.init()`) updates the controls, whose `update` event calls `fragments.core.update()` (unforced and throttled by the library, as for a user's drag), and `SimpleRenderer` renders every tick (its default mode is AUTO).

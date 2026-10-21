@@ -47,9 +47,14 @@ All in `pane.mjs` and `vite.config.mjs`, with reasons beside them.
 - `parsing` for `.ifc` is when the file has arrived, not when the parse starts or ends. The plugin parses and builds the scene in one synchronous call, so no event separates web-ifc's work from xeokit's.
 - Anything before the pane starts its clock: loading `pane.js` (1.5 MB) and the web-ifc script.
 - The true first draw: `first-frame` is the first `rendered` event after `loaded`. With the pane hidden or in a background tab the browser pauses frames and the state waits.
-- Memory and frame rate: the `view` suite does not measure them yet.
+- Frame rate is measured only along the `view` suite's camera path (`--path`), not while a user drives the viewer; memory is the whole Chrome's, sampled from outside on Windows, not the viewer's own.
 
 ## Checking it
 
 `node scripts/view.mjs --tool xeokit --model duplex --form xkt` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
+## Camera path
+
+`pane.mjs` gives `tools/camera-path.mjs` an adapter in xeokit's world: the box is `viewer.scene.aabb` (what `cameraFlight.jumpTo` frames), the up axis is `camera.worldUp` (`camera.up` is the camera's own up, which tilts with the view), and a pose sets `camera.up`, `camera.eye` and `camera.look` directly, with no `CameraFlightAnimation`.
+xeokit draws a dirty scene on its own `requestAnimationFrame` loop, so the adapter does not render itself; it counts the scene's `rendered` events (pass 0) and adds the count to the path result as `rendered`, which should equal `stats.frames`.
+On the test machine (RTX 4090 Laptop, `.xkt`): Duplex 1108 fps, p95 1.23 ms, p99 1.7 ms; Schependomlaan 1369 fps, p95 1.02 ms, p99 1.84 ms; `rendered` equalled `frames` in both.

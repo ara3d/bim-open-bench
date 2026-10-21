@@ -3,6 +3,7 @@
 import { Renderer } from "@ifc-lite/renderer";
 import { GeometryProcessor } from "@ifc-lite/geometry";
 import { createPane } from "../pane.mjs";
+import { installCameraPath } from "../camera-path.mjs";
 
 const canvas = document.getElementById("view");
 const version = __IFCLITE_VERSIONS__; // set by vite.config.js from the installed packages
@@ -97,5 +98,26 @@ async function load({ url, report }) {
     report("failed", { message: String(e?.message ?? e) });
   }
 }
+
+// The camera path's adapter (tools/camera-path.mjs): the bounds fitToView frames
+// (getModelBounds, Y-up world), the camera's up, and setPosition/setTarget, which apply at once
+// (no animation); requestRender() so the frame loop above draws the pose on the next frame.
+const vec = ({ x, y, z }) => [x, y, z];
+installCameraPath({
+  camera: {
+    box() {
+      const b = gpu?.renderer.getModelBounds();
+      return b ? { min: vec(b.min), max: vec(b.max) } : null;
+    },
+    up: () => vec(gpu.renderer.getCamera().getUp()),
+    set(eye, target) {
+      const camera = gpu.renderer.getCamera();
+      camera.stopInertia();
+      camera.setPosition(...eye);
+      camera.setTarget(...target);
+      gpu.renderer.requestRender();
+    },
+  },
+});
 
 createPane({ tool: "ifclite", version, ext: "ifc", load });

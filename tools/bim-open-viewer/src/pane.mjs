@@ -3,6 +3,7 @@
 import { createViewer } from "@bim-open-viewer/viewer";
 import { REVISION } from "three";
 import { createPane } from "../../pane.mjs";
+import { installCameraPath } from "../../camera-path.mjs";
 
 const stage = document.getElementById("stage");
 
@@ -66,5 +67,29 @@ async function load({ url, report }) {
   }
 }
 
+
+// The camera path's adapter (tools/camera-path.mjs), in the viewer's own world: the bounds that
+// view.fit frames, the first view's up, and view.look (no flight) as a saved-view restore does.
+// The view's frame loop draws on the next animation frame once the camera moved; requestRender
+// makes sure of it even when the pose did not change.
+const firstView = () => current?.viewer.views.all()[0];
+installCameraPath({
+  camera: {
+    box() {
+      const b = current?.viewer.bounds();
+      if (!b || b.min[0] > b.max[0] || b.min[1] > b.max[1] || b.min[2] > b.max[2]) return null;
+      return { min: [...b.min], max: [...b.max] };
+    },
+    up: () => [...(firstView()?.camera().camera.up ?? [0, 0, 1])],
+    set(eye, target) {
+      const view = firstView();
+      if (!view) return;
+      const state = view.camera();
+      const looked = current.viewer.run("view.look", { view: view.id, camera: { ...state, camera: { ...state.camera, position: eye, target } } });
+      if (!looked.ok) throw new Error(describe(looked.diagnostics));
+      view.requestRender();
+    },
+  },
+});
 
 createPane({ tool: "bim-open-viewer", version: await version(), ext: "bos", load });

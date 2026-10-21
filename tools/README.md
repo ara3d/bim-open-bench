@@ -28,9 +28,16 @@
 ```
 node scripts/view.mjs --tool thatopen --model duplex [--form frag] [--software] [--timeout 600]
 node scripts/view.mjs                                  every pane, model and form
+node scripts/view.mjs --tool xeokit --model duplex --path [--warm 2] [--repeat 5]
 ```
 
 The runner starts its own server on a free port, opens `site/side-by-side.html` with one pane in a fresh headless Chrome, waits for `done` or `failed`, and records every state message with its time, the file's size and hash, the conversion that made it, the browser, and what WebGL and WebGPU report as the GPU. Chrome draws on the machine's GPU; `--software` puts WebGL and WebGPU on SwiftShader instead, which is slower and is not comparable with a GPU run. Records go to `results/view/<date>.json` (a rerun replaces records with the same tool, model, form and renderer) and `results/view/README.md` is regenerated from the newest file; `--report` regenerates it alone. Screenshots go to `results/view/scratch/` (git-ignored). The exit code is 1 when any load failed or timed out. No packages; Node 22 or later and Chrome at its usual path (`--chrome <path>` or `CHROME` otherwise).
+
+Three options go further than the load times. `--path` plays the camera path once the load is `done`, with Chrome started without vsync and frame-rate limit, and records the frame times (fps, p50, p95, p99, frames over 33 ms and 100 ms), then screenshots three viewpoints (iso, front, inside) to `results/view/scratch/`. `--warm N` reloads the page N times in the same Chrome after the cold load, so the HTTP and GPU shader caches are warm; each pass is its own record (`cache`, `pass`). `--repeat N` runs each load N times, each in a fresh Chrome, and prints the median and minimum. On Windows every load also samples the memory of that Chrome's processes (`scripts/lib/win-sampler.mjs`: private bytes, working set, and the GPU's dedicated and shared memory from the `GPU Process Memory` counters) and records the peaks during the load, after it, and during the path. Only one run measures at a time: a second waits on `results/view/.view.lock` until the first ends.
+
+### The camera path
+
+`tools/camera-path.mjs` is shared by the panes, as `pane.mjs` is. A pane calls `installCameraPath({ camera })` with an adapter to its viewer, in the viewer's own world: `box()` (the loaded model's box, or null), `up()` (the viewer's up axis) and `set(eye, target)` (place the camera, without animation, and make the viewer draw). The path is relative to the box, so every viewer flies the same route whatever its axes and origin: a full turn outside at 1.6 times the half diagonal, a dive towards the centre, and half a turn inside. Frame times are `requestAnimationFrame` intervals in the pane, measured the same way for every viewer. Each pane's README says how its adapter reaches the viewer and whether every path frame is a real draw.
 
 ## The pane contract
 
