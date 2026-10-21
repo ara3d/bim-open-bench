@@ -2,6 +2,7 @@
 // (checkout/dist), loaded in an inner iframe on the same origin; this file reads
 // its load states from outside, without changing its code. See README.md here.
 import { createPane } from "../pane.mjs";
+import { installCameraPath } from "../camera-path.mjs";
 
 const frame = document.getElementById("viewer");
 const POLL_MS = 10;
@@ -69,6 +70,46 @@ function observe(absUrl, report) {
     });
   }, POLL_MS);
 }
+
+// The camera path's adapter (tools/camera-path.mjs). The viewer exports its App as
+// window.VIEWER.app in the inner window; app.viewer holds the three.js camera, OrbitControls,
+// scene and the loaded model (content). The viewer draws in its own requestAnimationFrame loop
+// (controls.update() then render, every frame), so set() only moves the camera and the target:
+// the inner loop draws the pose, and no extra render is added to the frame being timed.
+const inner = () => frame.contentWindow?.VIEWER?.app?.viewer;
+installCameraPath({
+  camera: {
+    // Box3.setFromObject without three: each mesh's geometry box (the instances' box for an
+    // InstancedMesh), its 8 corners through matrixWorld.
+    box() {
+      const v = inner();
+      if (!v?.content) return null;
+      v.content.updateMatrixWorld(true);
+      const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+      v.content.traverse((node) => {
+        if (!node.geometry || node.visible === false) return;
+        let b;
+        if (node.isInstancedMesh) { if (!node.boundingBox) node.computeBoundingBox(); b = node.boundingBox; }
+        else { if (!node.geometry.boundingBox) node.geometry.computeBoundingBox(); b = node.geometry.boundingBox; }
+        if (!b || b.isEmpty()) return;
+        const e = node.matrixWorld.elements;
+        for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) {
+          const w = e[3] * x + e[7] * y + e[11] * z + e[15] || 1;
+          const p = [(e[0] * x + e[4] * y + e[8] * z + e[12]) / w, (e[1] * x + e[5] * y + e[9] * z + e[13]) / w, (e[2] * x + e[6] * y + e[10] * z + e[14]) / w];
+          for (let i = 0; i < 3; i++) { if (p[i] < min[i]) min[i] = p[i]; if (p[i] > max[i]) max[i] = p[i]; }
+        }
+      });
+      return min[0] <= max[0] ? { min, max } : null;
+    },
+    up: () => inner().activeCamera.up.toArray(),
+    set(eye, target) {
+      const v = inner();
+      v.activeCamera.position.set(...eye);
+      v.controls.target.set(...target);
+      v.controls.update();
+    },
+  },
+});
 
 createPane({
   tool: "static-gltf",

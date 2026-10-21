@@ -21,4 +21,11 @@ Static glTF Viewer ([EverseDevelopment/Static.glTF.Viewer](https://github.com/Ev
 - Fetch and parse as separate costs inside the viewer: `parsing` begins at response end and the next event is the finished scene.
 - The true first draw: the pane infers it from the spinner and one animation frame. If the pane is hidden or in a background tab the browser pauses animation frames, so `first-frame` waits until the pane is visible.
 - A load error that the viewer logs but does not pass through `alert` or `console.error`.
-- Memory or frame rate: the `view` suite does not measure them yet.
+- Frame rate is measured only along the `view` suite's camera path (`--path`), not while a user drives the viewer; memory is the whole Chrome's, sampled from outside on Windows, not the viewer's own.
+
+## Camera path
+
+`pane.mjs` installs `tools/camera-path.mjs` with an adapter that reaches into the inner frame: the viewer exports its `App` as `window.VIEWER.app`, and `app.viewer` holds the three.js camera (`activeCamera`), `OrbitControls` (`controls`) and the loaded model (`content`, recentred on the origin by the viewer, Y up).
+- `box()`: the model's box computed without three (each mesh's geometry box, its 8 corners through `matrixWorld`), as `Box3.setFromObject` does.
+- `set(eye, target)`: `camera.position`, `controls.target`, `controls.update()`. No explicit render: the viewer draws on its own every `requestAnimationFrame` (`controls.update()` then `render()`), so the pose is drawn in the same tick or the next, and no second draw is added to the timed frame. Checked once: 11 487 poses gave 11 486 renders of the inner `renderer`.
+- The viewer's canvas stops about 64 px above the bottom of the pane (its e-verse logo strip), so screenshots show a white band there.

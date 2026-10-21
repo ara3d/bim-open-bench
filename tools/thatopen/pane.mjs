@@ -5,6 +5,7 @@
 import * as OBC from "@thatopen/components";
 import * as WEBIFC from "web-ifc";
 import { createPane } from "../pane.mjs";
+import { installCameraPath } from "../camera-path.mjs";
 import pkg from "./package.json";
 
 const container = document.getElementById("viewer");
@@ -90,5 +91,27 @@ async function loadModel({ model: id, url, report }) {
     report("failed", { message: String(error?.message ?? error) });
   }
 }
+
+// The camera path's adapter (tools/camera-path.mjs): the union of the loaded models' boxes, the
+// camera's up, and camera-controls' setLookAt without transition. The rest is the library's own
+// loop: components.init() runs a requestAnimationFrame loop that updates the controls (which fire
+// "update", so fragments.core.update() picks tiles and LOD as for a user's drag, throttled by the
+// library) and renders every tick (SimpleRenderer's default mode is AUTO).
+installCameraPath({
+  camera: {
+    box() {
+      if (!engine) return null;
+      const models = [...engine.fragments.list.values()];
+      if (!models.length) return null;
+      const box = models[0].box.clone();
+      for (const m of models.slice(1)) box.union(m.box);
+      return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray() };
+    },
+    up: () => engine.world.camera.three.up.toArray(),
+    async set([ex, ey, ez], [tx, ty, tz]) {
+      await engine.world.camera.controls.setLookAt(ex, ey, ez, tx, ty, tz, false);
+    },
+  },
+});
 
 createPane({ tool: "thatopen", version, ext: "ifc", load: loadModel });

@@ -35,7 +35,7 @@ This pane runs the Speckle viewer's engine through an offline fork, [bim-open-we
 - Bytes while fetching: `bytes` is the size once the body is in.
 - The Parquet decode is separate from the fetch only by the mark `decodedAt`; it is one `parsing` period in the state line.
 - The true first draw (see `first-frame` above), and the per-batch draws after it. A hidden tab pauses animation frames, so `first-frame` waits until the pane is visible.
-- Memory and frame rate: the `view` suite does not measure them yet.
+- Memory: sampled with every load on Windows (`scripts/lib/win-sampler.mjs`). Frame rate: not measured, the camera path is not wired (below).
 
 ## The Speckle object path is not used
 
@@ -48,3 +48,8 @@ Whether that is fair to Speckle stays open. The README's question is whether Spe
 `node scripts/view.mjs --tool speckle --model duplex` opens the pane in headless Chrome on the machine's GPU (`--software` for SwiftShader), waits for `done` or `failed`, prints the times, and writes a screenshot to `results/view/scratch/` (git-ignored); `tools/README.md` describes the runner and `results/view/README.md` holds the latest numbers for every pane.
 
 Logo: `logo.png` is https://github.com/specklesystems/speckle-server/blob/main/packages/frontend-2/public/images/logo.png (repository Apache-2.0; the mark belongs to Speckle Systems), used to identify the viewer in the benchmark; the word "fork" beside it says the pane runs the bim-open-web-viewer fork, not Speckle's release.
+
+## Camera path
+
+Not wired. `tools/camera-path.mjs` needs the pane's `Viewer` (its `CameraController`, world box and `requestRender`), and this pane keeps it in a module-local closure (`getViewer()` in `src/pane.mjs`): neither the source nor the prebuilt `dist/pane.js` puts it on `window` (the only globals are `globalThis.__phases`, `window.__THREE__` and troika's `self.troikaDefine`). The bundle cannot be rebuilt here, since the fork is not available, so `--path` gets no `path-result` from this pane.
+The fix is one line in `src/pane.mjs` after `createExtension(CameraController)`, `window.__speckle = { viewer, camera }`, then a rebuild; an adapter can then be added as a second module script in `pane.html`. three.js's `__THREE_DEVTOOLS__` "observe" hook would expose the scene and WebGLRenderer without a rebuild, but not the camera controls, which overwrite the camera each frame.
