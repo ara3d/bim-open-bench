@@ -65,6 +65,15 @@ async function fetchBytes(url, report) {
 function fitCamera(world, model) {
   const box = model.box.clone();
   if (box.isEmpty()) return;
+  // changed: the camera's far plane is 1000 (PerspectiveCamera(60, aspect, 1, 1000)), so a model
+  // over a kilometre across (a building with its site and city context) is cut. Far is pushed to
+  // three times the box diagonal when shorter; near is left as is.
+  const camera = world.camera.three;
+  const diagonal = box.max.distanceTo(box.min);
+  if (camera.far < 3 * diagonal) {
+    camera.far = 3 * diagonal;
+    camera.updateProjectionMatrix();
+  }
   world.camera.controls.fitToBox(box, false);
 }
 
